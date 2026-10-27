@@ -1,0 +1,3442 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Admin Dashboard - Online Voting System
+    </title>
+
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f4f7fb;
+            color: #222;
+        }
+
+
+        .navbar {
+            background: linear-gradient(
+                135deg,
+                #111827,
+                #1e3a8a
+            );
+
+            color: white;
+
+            padding: 18px 30px;
+
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            box-shadow:
+                0 3px 12px rgba(0,0,0,0.15);
+        }
+
+
+        .navbar h1 {
+            font-size: 24px;
+        }
+
+
+        .navbar span {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+
+        .logout {
+            background: #ef4444;
+            color: white;
+            text-decoration: none;
+            padding: 9px 16px;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+
+
+        .logout:hover {
+            background: #dc2626;
+        }
+
+
+        .container {
+            width: 94%;
+            max-width: 1400px;
+            margin: 25px auto;
+        }
+
+
+        .flash {
+            padding: 14px 18px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+
+        .flash.success {
+            background: #dcfce7;
+            color: #166534;
+            border: 1px solid #86efac;
+        }
+
+
+        .flash.danger {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fca5a5;
+        }
+
+
+        .flash.warning {
+            background: #fef3c7;
+            color: #92400e;
+            border: 1px solid #fcd34d;
+        }
+
+
+        .flash.info {
+            background: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #93c5fd;
+        }
+
+
+        .stats {
+            display: grid;
+            grid-template-columns: minmax(300px, 1fr);
+            gap: 18px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            min-height: 136px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 22px;
+            background: linear-gradient(115deg, #ffffff 0%, #f8fbff 100%);
+            padding: 24px 28px;
+            border-radius: 18px;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.07);
+            border: 1px solid #e3ebf8;
+            border-left: 5px solid #2563eb;
+        }
+
+        .stat-card h3 { font-size: 15px; color: #64748b; margin: 0 0 8px; }
+        .stat-card .number { font-size: 36px; line-height: 1.15; font-weight: 800; color: #111827; }
+        .stat-caption { color:#64748b; font-size:13px; margin-top:7px; }
+        .stat-icon { width:68px; height:68px; border-radius:18px; display:flex; align-items:center; justify-content:center; background:#eaf1ff; color:#2563eb; font-size:32px; flex-shrink:0; }
+        .live-pill { display:inline-flex; align-items:center; gap:8px; border-radius:999px; background:#fff1f2; border:1px solid #fecdd3; color:#be123c; font-weight:800; font-size:12px; letter-spacing:.06em; padding:8px 12px; white-space:nowrap; }
+        .live-dot { width:9px; height:9px; display:inline-block; border-radius:50%; background:#ef4444; box-shadow:0 0 0 4px rgba(239,68,68,.14); animation:livePulse 1.5s infinite; }
+        @keyframes livePulse { 0%,100%{box-shadow:0 0 0 3px rgba(239,68,68,.12)} 50%{box-shadow:0 0 0 6px rgba(239,68,68,.20)} }
+        .candidate-live-list { margin-top:17px; padding:15px; background:#fff; border:1px solid #e5eaf2; border-radius:13px; }
+        .candidate-live-title { font-size:14px; font-weight:800; color:#334155; margin-bottom:11px; }
+        .candidate-live-row { display:grid; grid-template-columns:minmax(120px,1fr) auto minmax(100px,1.2fr); align-items:center; gap:12px; padding:9px 0; border-bottom:1px solid #eef2f7; }
+        .candidate-live-row:last-child { border-bottom:0; }
+        .candidate-live-name { color:#0f172a; font-weight:700; overflow-wrap:anywhere; }
+        .candidate-live-votes { color:#1d4ed8; font-weight:800; white-space:nowrap; }
+        .candidate-vote-track { height:8px; background:#edf2f7; border-radius:99px; overflow:hidden; }
+        .candidate-vote-fill { height:100%; background:linear-gradient(90deg,#2563eb,#60a5fa); border-radius:99px; min-width:0; }
+        .current-election-card { border-color:#fecaca; box-shadow:0 8px 24px rgba(239,68,68,.08); }
+        @media(max-width:700px) { .stat-card { padding:20px; } .candidate-live-row { grid-template-columns:1fr auto; } .candidate-vote-track { grid-column:1 / -1; } }
+
+
+        .section {
+            background: white;
+            border-radius: 14px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow:
+                0 4px 15px rgba(0,0,0,0.08);
+        }
+
+
+        .section-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 14px;
+        }
+
+
+        .section-title h2 {
+            font-size: 21px;
+            color: #111827;
+        }
+
+
+        .section-title p {
+            color: #6b7280;
+            font-size: 13px;
+            margin-top: 4px;
+        }
+
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+
+        .form-group label {
+            font-weight: bold;
+            margin-bottom: 7px;
+            color: #374151;
+        }
+
+
+        .form-group input,
+        .form-group select {
+
+            padding: 12px;
+
+            border: 1px solid #d1d5db;
+
+            border-radius: 8px;
+
+            font-size: 14px;
+
+            outline: none;
+
+            background: white;
+        }
+
+
+        .form-group input:focus,
+        .form-group select:focus {
+
+            border-color: #2563eb;
+
+            box-shadow:
+                0 0 0 2px
+                rgba(37,99,235,0.1);
+        }
+
+
+        .form-group select:disabled,
+        .form-group input:disabled {
+
+            background: #f3f4f6;
+
+            color: #9ca3af;
+
+            cursor: not-allowed;
+        }
+
+
+        .btn {
+
+            border: none;
+
+            padding: 12px 20px;
+
+            border-radius: 8px;
+
+            cursor: pointer;
+
+            font-weight: bold;
+
+            font-size: 14px;
+        }
+
+
+        .btn-primary {
+
+            background: #2563eb;
+
+            color: white;
+        }
+
+
+        .btn-primary:hover {
+
+            background: #1d4ed8;
+        }
+
+
+        .btn-danger {
+
+            background: #ef4444;
+
+            color: white;
+        }
+
+
+        .btn-danger:hover {
+
+            background: #dc2626;
+        }
+
+
+        .btn-success {
+
+            background: #16a34a;
+
+            color: white;
+        }
+
+
+        .btn-success:hover {
+
+            background: #15803d;
+        }
+
+
+        .btn-warning {
+
+            background: #f59e0b;
+
+            color: white;
+        }
+
+
+        .candidate-table,
+        .voter-table {
+
+            width: 100%;
+
+            border-collapse: collapse;
+        }
+
+
+        .candidate-table th,
+        .candidate-table td,
+        .voter-table th,
+        .voter-table td {
+
+            padding: 13px;
+
+            text-align: left;
+
+            border-bottom:
+                1px solid #e5e7eb;
+        }
+
+
+        .candidate-table th,
+        .voter-table th {
+
+            background: #f8fafc;
+
+            color: #374151;
+        }
+
+
+        .candidate-symbol {
+
+            font-size: 26px;
+        }
+
+
+        .badge {
+
+            display: inline-block;
+
+            padding: 5px 10px;
+
+            border-radius: 20px;
+
+            font-size: 12px;
+
+            font-weight: bold;
+        }
+
+
+        .badge-success {
+
+            background: #dcfce7;
+
+            color: #166534;
+        }
+
+
+        .badge-danger {
+
+            background: #fee2e2;
+
+            color: #991b1b;
+        }
+
+
+        .badge-warning {
+
+            background: #fef3c7;
+
+            color: #92400e;
+        }
+
+
+        .badge-info {
+
+            background: #dbeafe;
+
+            color: #1e40af;
+        }
+
+
+        .voting-status {
+
+            padding: 20px;
+
+            border-radius: 12px;
+
+            background: #f8fafc;
+
+            margin-bottom: 20px;
+        }
+
+
+        .action-grid {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(3, 1fr);
+
+            gap: 15px;
+        }
+
+
+        .action-card {
+
+            text-decoration: none;
+
+            padding: 20px;
+
+            border-radius: 12px;
+
+            background: #f8fafc;
+
+            border: 1px solid #e5e7eb;
+
+            color: #111827;
+
+            transition: 0.2s;
+        }
+
+
+        .action-card:hover {
+
+            transform:
+                translateY(-3px);
+
+            box-shadow:
+                0 5px 15px
+                rgba(0,0,0,0.1);
+        }
+
+
+        .action-card .icon {
+
+            font-size: 30px;
+
+            margin-bottom: 8px;
+        }
+
+
+        .action-card h3 {
+
+            margin-bottom: 5px;
+        }
+
+
+        .action-card p {
+
+            font-size: 13px;
+
+            color: #6b7280;
+        }
+
+
+        .empty {
+
+            text-align: center;
+
+            padding: 30px;
+
+            color: #6b7280;
+        }
+
+
+        .full-width {
+
+            grid-column: 1 / -1;
+        }
+
+
+        .footer {
+
+            text-align: center;
+
+            padding: 25px;
+
+            color: #6b7280;
+
+            font-size: 13px;
+        }
+
+
+        .location-note {
+
+            margin-top: 8px;
+
+            font-size: 12px;
+
+            color: #6b7280;
+        }
+
+
+        .location-note.active {
+
+            color: #2563eb;
+
+            font-weight: bold;
+        }
+
+
+        .schedule-info {
+
+            background: #eff6ff;
+
+            border: 1px solid #bfdbfe;
+
+            color: #1e40af;
+
+            padding: 14px;
+
+            border-radius: 10px;
+
+            margin-bottom: 18px;
+
+            font-size: 13px;
+        }
+
+
+        /* =====================================================
+           ELECTION CARDS
+           ===================================================== */
+
+        .election-card {
+
+            border: 1px solid #dbeafe;
+
+            border-radius: 16px;
+
+            padding: 20px;
+
+            margin-bottom: 20px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #ffffff,
+                    #f8fbff
+                );
+
+            box-shadow:
+                0 5px 18px
+                rgba(37,99,235,0.07);
+        }
+
+
+        .election-card:last-child {
+
+            margin-bottom: 0;
+        }
+
+
+        .election-header {
+
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            gap: 15px;
+
+            margin-bottom: 15px;
+
+            padding-bottom: 14px;
+
+            border-bottom:
+                1px solid #e5e7eb;
+        }
+
+
+        .election-title {
+
+            font-size: 23px;
+
+            font-weight: 900;
+
+            color: #1d4ed8;
+        }
+
+
+        .election-type {
+
+            display: inline-block;
+
+            margin-top: 7px;
+
+            background: #ede9fe;
+
+            color: #6d28d9;
+
+            padding: 5px 10px;
+
+            border-radius: 20px;
+
+            font-size: 12px;
+
+            font-weight: bold;
+        }
+
+
+        .election-status {
+
+            white-space: nowrap;
+        }
+
+
+        .election-info-grid {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(3, 1fr);
+
+            gap: 12px;
+
+            margin-bottom: 18px;
+        }
+
+
+        .election-info-box {
+
+            background: #f8fafc;
+
+            border: 1px solid #e5e7eb;
+
+            border-radius: 10px;
+
+            padding: 13px;
+        }
+
+
+        .election-info-box small {
+
+            display: block;
+
+            color: #6b7280;
+
+            font-size: 11px;
+
+            margin-bottom: 4px;
+        }
+
+
+        .election-info-box strong {
+
+            color: #111827;
+
+            font-size: 15px;
+        }
+
+
+        .schedule-form {
+
+            background: #f8fafc;
+
+            border:
+                1px solid #e5e7eb;
+
+            padding: 17px;
+
+            border-radius: 12px;
+        }
+
+
+        .schedule-form h3 {
+
+            color: #111827;
+
+            margin-bottom: 13px;
+
+            font-size: 17px;
+        }
+
+
+        .election-manage-actions {
+
+            display: flex;
+
+            flex-wrap: wrap;
+
+            gap: 10px;
+
+            margin-top: 15px;
+        }
+
+
+        .election-manage-actions a {
+
+            text-decoration: none;
+        }
+
+
+        /* =====================================================
+           CANDIDATE SELECTOR
+           ===================================================== */
+
+        .election-selector-box {
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #eff6ff,
+                    #f8fafc
+                );
+
+            border: 1px solid #bfdbfe;
+
+            padding: 18px;
+
+            border-radius: 12px;
+
+            margin-bottom: 18px;
+        }
+
+
+        .election-selector-box label {
+
+            display: block;
+
+            font-weight: bold;
+
+            color: #1e3a8a;
+
+            margin-bottom: 8px;
+        }
+
+
+        .election-selector-box select {
+
+            width: 100%;
+
+            padding: 13px;
+
+            border: 1px solid #93c5fd;
+
+            border-radius: 8px;
+
+            background: white;
+
+            font-size: 14px;
+
+            outline: none;
+        }
+
+
+        .election-selector-box select:focus {
+
+            border-color: #2563eb;
+
+            box-shadow:
+                0 0 0 3px
+                rgba(37,99,235,0.12);
+        }
+
+
+        .candidate-help {
+
+            margin-top: 8px;
+
+            font-size: 12px;
+
+            color: #6b7280;
+        }
+
+
+        .candidate-submit {
+
+            width: 100%;
+        }
+
+
+        /* =====================================================
+           ELECTION HIGHLIGHT
+           ===================================================== */
+
+        .election-highlight {
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #eef2ff,
+                    #ffffff
+                );
+
+            border:
+                2px solid #4f46e5;
+
+            border-radius: 14px;
+
+            padding: 18px;
+
+            margin-bottom: 18px;
+
+            text-align: center;
+        }
+
+
+        .election-highlight .icon {
+
+            font-size: 35px;
+
+            margin-bottom: 5px;
+        }
+
+
+        .election-highlight h3 {
+
+            color: #1d4ed8;
+
+            font-size: 25px;
+
+            font-weight: 900;
+        }
+
+
+        .election-highlight p {
+
+            color: #4b5563;
+
+            margin-top: 6px;
+
+            font-size: 13px;
+
+            font-weight: 600;
+        }
+
+
+        @media (max-width: 1000px) {
+
+            .stats {
+
+                grid-template-columns:
+                    repeat(2, 1fr);
+            }
+
+
+            .form-grid {
+
+                grid-template-columns:
+                    1fr 1fr;
+            }
+
+
+            .action-grid {
+
+                grid-template-columns:
+                    1fr 1fr;
+            }
+
+
+            .election-info-grid {
+
+                grid-template-columns:
+                    1fr 1fr;
+            }
+
+        }
+
+
+        @media (max-width: 650px) {
+
+            .stats,
+            .form-grid,
+            .action-grid,
+            .election-info-grid {
+
+                grid-template-columns:
+                    1fr;
+            }
+
+
+            .container {
+
+                width: 96%;
+            }
+
+
+            .candidate-table,
+            .voter-table {
+
+                display: block;
+
+                overflow-x: auto;
+            }
+
+
+            .navbar {
+
+                padding: 15px;
+
+                gap: 12px;
+            }
+
+
+            .navbar h1 {
+
+                font-size: 18px;
+            }
+
+
+            .logout {
+
+                padding:
+                    8px 12px;
+
+                font-size: 12px;
+            }
+
+
+            .section {
+
+                padding: 18px;
+            }
+
+
+            .election-header {
+
+                flex-direction: column;
+
+                align-items: flex-start;
+            }
+
+
+            .election-title {
+
+                font-size: 20px;
+            }
+
+        }
+
+
+        .election-list-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px; }
+        .election-time-info { display:flex; flex-wrap:wrap; gap:12px; margin-top:12px; }
+        .election-time-info > div { background:#f8fafc; border:1px solid #e2e8f0; border-radius:9px; padding:9px 12px; min-width:210px; display:flex; flex-direction:column; gap:4px; }
+        .election-time-info small { color:#64748b; font-size:12px; }
+        .election-time-info strong { color:#0f172a; font-size:14px; }
+        .election-manage-actions { display:flex; flex-wrap:wrap; gap:10px; margin-top:18px; align-items:center; }
+        .initial-candidate-row { padding:14px; border:1px solid #e5e7eb; border-radius:10px; }
+        @media(max-width:850px) { .election-list-grid { grid-template-columns:1fr; } }
+
+
+        /* Current, Upcoming and Previous election sections: full-width stacked layout */
+        .election-status-columns {
+            display: grid !important;
+            grid-template-columns: minmax(0, 1fr) !important;
+            gap: 22px;
+            align-items: stretch;
+            width: 100%;
+        }
+        .election-status-columns > .section {
+            display: block;
+            width: 100%;
+            min-width: 0;
+            box-sizing: border-box;
+            margin: 0;
+            padding: 25px;
+        }
+        .election-status-columns .election-list-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr);
+            width: 100%;
+        }
+        .election-status-columns .election-card {
+            width: 100%;
+            max-width: none;
+            box-sizing: border-box;
+        }
+        .election-status-columns .election-info-grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+        .election-status-columns .election-time-info > div {
+            min-width: 210px;
+            flex: 1 1 210px;
+        }
+        .election-status-columns .election-title {
+            overflow-wrap: anywhere;
+        }
+        @media (max-width: 700px) {
+            .election-status-columns > .section { padding: 16px; }
+            .election-status-columns .election-info-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<!-- =========================================================
+     NAVBAR
+     ========================================================= -->
+
+<div class="navbar">
+
+    <div>
+
+        <h1>
+            🗳️ Online Voting System
+        </h1>
+
+        <span>
+            Administrator Dashboard
+        </span>
+
+    </div>
+
+
+    <a
+        href="{{ url_for('admin_logout') }}"
+        class="logout"
+    >
+        🚪 Logout
+    </a>
+
+</div>
+
+
+
+<div class="container">
+
+
+<!-- =========================================================
+     FLASH MESSAGES
+     ========================================================= -->
+
+{% with messages =
+    get_flashed_messages(
+        with_categories=true
+    )
+%}
+
+    {% if messages %}
+
+        {% for category, message in messages %}
+
+            <div class="flash {{ category }}">
+                {{ message }}
+            </div>
+
+        {% endfor %}
+
+    {% endif %}
+
+{% endwith %}
+
+
+
+<!-- DASHBOARD SUMMARY: ONLY TOTAL REGISTERED -->
+<div class="stats">
+    <div class="stat-card">
+        <div>
+            <h3>👥 Total Registered</h3>
+            <div class="number">{{ total_registered|default(0) }}</div>
+            <div class="stat-caption">Total voter accounts registered in the system</div>
+        </div>
+        <div class="stat-icon" aria-hidden="true">👥</div>
+    </div>
+</div>
+
+
+<!-- =========================================================
+     CURRENT, UPCOMING AND PREVIOUS ELECTIONS
+     ========================================================= -->
+{% macro election_card(item) %}
+<div class="election-card {% if item.status == 'active' %}current-election-card{% endif %}">
+    <div class="election-header">
+        <div>
+            <div class="election-title">🗳️ {{ item.election['name'] }}</div>
+            {% if item.election['election_type'] %}<span class="election-type">{{ item.election['election_type'] }}</span>{% endif %}
+        </div>
+        <div class="election-status">
+            {% if item.status == 'active' %}<span class="live-pill"><span class="live-dot"></span> LIVE NOW</span>
+            {% elif item.status in ['ended', 'archived'] %}<span class="badge badge-danger">ENDED</span>
+            {% elif item.status == 'scheduled' %}<span class="badge badge-info">UPCOMING</span>
+            {% else %}<span class="badge badge-warning">NOT STARTED</span>{% endif %}
+        </div>
+    </div>
+    <div class="election-info-grid">
+        <div class="election-info-box"><small>Election ID</small><strong>#{{ item.election['id'] }}</strong></div>
+        <div class="election-info-box"><small>Candidates</small><strong>{{ item.candidate_count|default(0) }}</strong></div>
+        <div class="election-info-box"><small>Total Votes</small><strong>{{ item.voted_count|default(0) }}</strong></div>
+    </div>
+    <div class="election-time-info"
+         data-start="{{ item.election['start_datetime']|default('') }}"
+         data-duration="{{ item.election['duration_seconds']|default(0) }}">
+        <div><small>🕒 Start Time</small><strong class="election-start-display">Not scheduled</strong></div>
+        <div><small>🏁 End Time</small><strong class="election-end-display">Not scheduled</strong></div>
+    </div>
+    {% if item.status == 'active' %}
+    <div class="candidate-live-list">
+        <div class="candidate-live-title">📊 Live Candidate Votes <span style="font-weight:500;color:#64748b">· {{ item.voted_count|default(0) }} vote(s) recorded</span></div>
+        {% if item.candidate_results %}
+            {% for candidate in item.candidate_results %}
+                {% if item.voted_count|int > 0 %}{% set candidate_percent = (candidate['votes']|int * 100 / item.voted_count|int) %}{% else %}{% set candidate_percent = 0 %}{% endif %}
+                <div class="candidate-live-row">
+                    <div class="candidate-live-name">{{ candidate['name'] }}</div>
+                    <div class="candidate-live-votes">{{ candidate['votes']|default(0) }} vote(s) · {{ '%.1f'|format(candidate_percent) }}%</div>
+                    <div class="candidate-vote-track"><div class="candidate-vote-fill" style="width:{{ candidate_percent }}%"></div></div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty">No candidates have been added to this election yet.</div>
+        {% endif %}
+    </div>
+    {% endif %}
+    <div class="election-manage-actions">
+        <a href="{{ url_for('admin_election_details', election_id=item.election['id']) }}" class="btn btn-primary">👁️ View Details</a>
+        {% if item.status == 'active' %}
+        <span class="badge badge-info">🔒 Active election cannot be deleted</span>
+        {% else %}
+        <form method="POST"
+              action="{{ url_for('admin_delete_election', election_id=item.election['id']) }}"
+              onsubmit="return confirm('WARNING: Permanently delete this election and its election-specific candidates, votes, and blockchain records? This cannot be undone. Registered voter accounts will remain safe.');"
+              style="display:inline-block;">
+            <button type="submit" class="btn btn-danger">🗑️ Delete Election Permanently</button>
+        </form>
+        {% endif %}
+    </div>
+</div>
+{% endmacro %}
+
+{% set active_elections = elections|selectattr('status', 'equalto', 'active')|list %}
+{% set upcoming_elections = elections|rejectattr('status', 'in', ['active', 'ended', 'archived'])|list %}
+{% set previous_elections = elections|selectattr('status', 'in', ['ended', 'archived'])|list %}
+
+<div class="election-status-columns">
+<div class="section">
+    <div class="section-title"><div><h2>🟢 Current Election</h2><p>Election currently accepting votes.</p></div></div>
+    {% if active_elections %}<div class="election-list-grid">{% for item in active_elections %}{{ election_card(item) }}{% endfor %}</div>
+    {% else %}<div class="empty"><p>No election is currently active.</p></div>{% endif %}
+</div>
+
+<div class="section">
+    <div class="section-title"><div><h2>📅 Upcoming Elections</h2><p>Scheduled and not-yet-started elections.</p></div></div>
+    {% if upcoming_elections %}<div class="election-list-grid">{% for item in upcoming_elections %}{{ election_card(item) }}{% endfor %}</div>
+    {% else %}<div class="empty"><p>No upcoming elections.</p></div>{% endif %}
+</div>
+
+<div class="section">
+    <div class="section-title"><div><h2>🗂️ Previous Elections</h2><p>Completed elections and their saved results.</p></div></div>
+    {% if previous_elections %}<div class="election-list-grid">{% for item in previous_elections %}{{ election_card(item) }}{% endfor %}</div>
+    {% else %}<div class="empty"><p>No previous elections yet.</p></div>{% endif %}
+</div>
+</div>
+
+
+<!-- =========================================================
+     ADD ELECTION
+     ========================================================= -->
+<div class="section">
+    <div class="section-title">
+        <div>
+            <h2>➕ Add New Election</h2>
+            <p>Set the election details and candidates. After setting, it will appear under Upcoming Elections until its scheduled start time.</p>
+        </div>
+    </div>
+
+    <form id="createElectionCandidateForm" method="POST" enctype="multipart/form-data" action="{{ url_for('admin_create_election_and_add_candidate') }}">
+        <div class="form-grid">
+            <div class="form-group full-width">
+                <label for="new_election_name">🗳️ Election Name</label>
+                <input type="text" id="new_election_name" name="election_name" placeholder="Example: Student Council Election 2026" maxlength="150" required>
+            </div>
+            <div class="form-group">
+                <label for="new_election_type">📋 Election Type</label>
+                <input type="text" id="new_election_type" name="election_type" list="electionTypeOptions" placeholder="PM, MP, MLA, College Election" maxlength="100" required>
+                <datalist id="electionTypeOptions">
+                    <option value="PM"></option><option value="MP"></option><option value="MLA"></option>
+                    <option value="CM"></option><option value="Panchayat"></option><option value="Municipal"></option>
+                    <option value="College Election"></option><option value="Student Election"></option><option value="General"></option>
+                </datalist>
+            </div>
+            <div class="form-group">
+                <label for="new_start_date">📅 Voting Date</label>
+                <input type="date" id="new_start_date" name="start_date" class="election-start-date" required>
+            </div>
+            <div class="form-group">
+                <label for="new_start_time">🕒 Start Time</label>
+                <input type="time" id="new_start_time" name="start_time" required>
+            </div>
+            <div class="form-group">
+                <label for="new_duration_hours">⏱️ Duration (Hours)</label>
+                <input type="number" id="new_duration_hours" name="duration_hours" min="0" max="720" value="1" required>
+            </div>
+            <div class="form-group">
+                <label for="new_duration_minutes">⏱️ Duration (Minutes)</label>
+                <input type="number" id="new_duration_minutes" name="duration_minutes" min="0" max="59" value="0" required>
+            </div>
+        </div>
+
+        <h3 style="margin:24px 0 12px;">📍 Voting Eligibility</h3>
+        <p style="color:#64748b;font-size:13px;margin-bottom:14px;">Eligibility is saved separately for this election.</p>
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="new_scope">Eligible Area</label>
+                <select id="new_scope" name="scope" required>
+                    <option value="all_india">All India</option>
+                    <option value="state">Specific State</option>
+                    <option value="district">Specific District</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="new_state">State / Union Territory</label>
+                <select id="new_state" name="state">
+                    <option value="">Select state</option>
+                    {% for state_name in indian_states %}<option value="{{ state_name }}">{{ state_name }}</option>{% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="new_district">District</label>
+                <select id="new_district" name="district">
+                    <option value="">Select district</option>
+                </select>
+            </div>
+        </div>
+
+        <h3 style="margin:24px 0 12px;">👥 Candidates for this election</h3>
+        <p style="color:#64748b;font-size:13px;margin-bottom:14px;">Candidates entered here belong only to this election. Use “Add Candidate Row” to add more.</p>
+        <div id="initialCandidates">
+            <div class="form-grid initial-candidate-row" style="margin-bottom:14px;">
+                <div class="form-group"><label>Candidate Name</label><input name="name" maxlength="100" placeholder="Candidate name" required></div>
+                <div class="form-group"><label>Party / Group</label><input name="party" maxlength="100" placeholder="Party or group" required></div>
+                <div class="form-group"><label>Election Symbol Image</label><input type="file" name="party_symbol_file" accept="image/png,image/jpeg,image/webp" required><small>PNG, JPG or WEBP; max 5 MB.</small></div>
+            </div>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;">
+            <button type="button" id="addCandidateRowBtn" class="btn btn-warning">➕ Add Candidate Row</button>
+            <button type="submit" class="btn btn-success">✅ Set Election</button>
+        </div>
+    </form>
+</div>
+
+
+<!-- =========================================================
+     ADMIN MANAGEMENT
+     ========================================================= -->
+
+<div class="section">
+
+
+    <div class="section-title">
+
+        <div>
+
+            <h2>
+                ⚙️ Admin Management
+            </h2>
+
+            <p>
+                Manage voters, password requests, results and blockchain.
+            </p>
+
+        </div>
+
+    </div>
+
+
+
+    <div class="action-grid">
+        <a href="{{ url_for('admin_voters') }}" class="action-card">
+            <div class="icon">👥</div><h3>All Voters</h3><p>View registered voters.</p>
+        </a>
+        <a href="{{ url_for('password_requests') }}" class="action-card">
+            <div class="icon">🔐</div><h3>Password Requests</h3><p>Pending requests: <strong>{{ password_request_count|default(0) }}</strong></p>
+        </a>
+        <a href="{{ url_for('blockchain') }}" class="action-card">
+            <div class="icon">⛓️</div><h3>Blockchain</h3><p>View blockchain vote records.</p>
+        </a>
+    </div>
+
+</div>
+
+
+
+<!-- =========================================================
+     VOTER LIST
+     ========================================================= -->
+
+<div class="section">
+
+
+    <div class="section-title">
+
+        <div>
+
+            <h2>
+                👥 Recent Registered Voters
+            </h2>
+
+            <p>
+                Latest registered voters.
+            </p>
+
+        </div>
+
+    </div>
+
+
+
+    {% if voters %}
+
+
+        <div style="overflow-x:auto;">
+
+            <table class="voter-table">
+
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            ID
+                        </th>
+
+                        <th>
+                            Name
+                        </th>
+
+                        <th>
+                            Mobile
+                        </th>
+
+                        <th>
+                            State
+                        </th>
+
+                        <th>
+                            District
+                        </th>
+
+                        <th>
+                            Status
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+
+                <tbody>
+
+
+                {% for voter in voters[:10] %}
+
+
+                    <tr>
+
+
+                        <td>
+                            {{ voter["id"] }}
+                        </td>
+
+
+
+                        <td>
+
+                            <strong>
+                                {{ voter["name"] }}
+                            </strong>
+
+                        </td>
+
+
+
+                        <td>
+                            {{ voter["mobile"] }}
+                        </td>
+
+
+
+                        <td>
+                            {{ voter["state"] }}
+                        </td>
+
+
+
+                        <td>
+                            {{ voter["district"] }}
+                        </td>
+
+
+
+                        <td>
+
+
+                            {% if voter["has_voted"] %}
+
+                                <span class="badge badge-success">
+
+                                    Voted
+
+                                </span>
+
+
+                            {% else %}
+
+                                <span class="badge badge-warning">
+
+                                    Not Voted
+
+                                </span>
+
+                            {% endif %}
+
+
+                        </td>
+
+
+                    </tr>
+
+
+                {% endfor %}
+
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+    {% else %}
+
+
+        <div class="empty">
+
+            No registered voters yet.
+
+        </div>
+
+
+    {% endif %}
+
+
+</div>
+
+
+
+<!-- =========================================================
+     FOOTER
+     ========================================================= -->
+
+<div class="footer">
+
+    Online Voting System • Admin Control Panel
+
+</div>
+
+
+</div>
+
+
+
+<script>
+
+
+/* =========================================================
+   VERSION
+   ========================================================= */
+
+const ADMIN_DASHBOARD_VERSION =
+    "2026-10-22-CUSTOM-ELECTION-FIX-01";
+
+
+
+/* =========================================================
+   ELECTION SCHEDULE VALIDATION
+   The dashboard now collects schedule details during election creation.
+   ========================================================= */
+
+
+const electionScheduleForms = document.querySelectorAll(".electionScheduleForm");
+
+electionScheduleForms.forEach(function(form) {
+    form.addEventListener("submit", function(event) {
+        const dateInput = form.querySelector(".election-start-date");
+        const timeInput = form.querySelector(".election-start-clock");
+        const hoursInput = form.querySelector('[name="duration_hours"]');
+        const minutesInput = form.querySelector('[name="duration_minutes"]');
+
+        if (!dateInput || !timeInput || !hoursInput || !minutesInput) {
+            return;
+        }
+
+        if (!dateInput.value || !timeInput.value) {
+            event.preventDefault();
+            alert("Please select the voting start date and time.");
+            return;
+        }
+
+        const start = new Date(dateInput.value + "T" + timeInput.value);
+        const now = new Date();
+
+        if (Number.isNaN(start.getTime())) {
+            event.preventDefault();
+            alert("Please enter a valid voting start date and time.");
+            return;
+        }
+
+        if (start <= now) {
+            event.preventDefault();
+            alert("Voting start date and time must be in the future.");
+            return;
+        }
+
+        const hours = Number(hoursInput.value || 0);
+        const minutes = Number(minutesInput.value || 0);
+
+        if (!Number.isInteger(hours) || !Number.isInteger(minutes) ||
+            hours < 0 || minutes < 0 || minutes > 59 ||
+            (hours * 60 + minutes) <= 0) {
+            event.preventDefault();
+            alert("Duration must be greater than zero. Minutes must be between 0 and 59.");
+        }
+    });
+});
+
+
+/* =========================================================
+   INDIA STATE → DISTRICT DATA
+   ========================================================= */
+
+const districtsByState = {
+
+
+    "Andhra Pradesh": [
+
+        "All Districts",
+        "Alluri Sitharama Raju",
+        "Anakapalli",
+        "Anantapur",
+        "Annamayya",
+        "Bapatla",
+        "Chittoor",
+        "Dr. B. R. Ambedkar Konaseema",
+        "East Godavari",
+        "Eluru",
+        "Guntur",
+        "Kakinada",
+        "Krishna",
+        "Kurnool",
+        "Nandyal",
+        "NTR",
+        "Palnadu",
+        "Parvathipuram Manyam",
+        "Prakasam",
+        "Srikakulam",
+        "Sri Sathya Sai",
+        "Tirupati",
+        "Visakhapatnam",
+        "Vizianagaram",
+        "West Godavari",
+        "YSR Kadapa"
+
+    ],
+
+
+    "Arunachal Pradesh": [
+
+        "All Districts",
+        "Anjaw",
+        "Bichom",
+        "Changlang",
+        "Dibang Valley",
+        "East Kameng",
+        "East Siang",
+        "Itanagar Capital Complex",
+        "Kamle",
+        "Keyi Panyor",
+        "Kra Daadi",
+        "Kurung Kumey",
+        "Lepa Rada",
+        "Lohit",
+        "Longding",
+        "Lower Dibang Valley",
+        "Lower Siang",
+        "Lower Subansiri",
+        "Namsai",
+        "Pakke Kessang",
+        "Papum Pare",
+        "Shi Yomi",
+        "Siang",
+        "Tawang",
+        "Tirap",
+        "Upper Siang",
+        "Upper Subansiri",
+        "West Kameng",
+        "West Siang"
+
+    ],
+
+
+    "Assam": [
+
+        "All Districts",
+        "Baksa",
+        "Barpeta",
+        "Biswanath",
+        "Bongaigaon",
+        "Cachar",
+        "Charaideo",
+        "Darrang",
+        "Dhemaji",
+        "Dhubri",
+        "Dibrugarh",
+        "Dima Hasao",
+        "Goalpara",
+        "Golaghat",
+        "Hailakandi",
+        "Hojai",
+        "Jorhat",
+        "Kamrup",
+        "Kamrup Metropolitan",
+        "Karbi Anglong",
+        "Kokrajhar",
+        "Lakhimpur",
+        "Majuli",
+        "Morigaon",
+        "Nagaon",
+        "Nalbari",
+        "Sivasagar",
+        "Sonitpur",
+        "South Salmara-Mankachar",
+        "Tamulpur",
+        "Tinsukia",
+        "Udalguri",
+        "West Karbi Anglong"
+
+    ],
+
+
+    "Bihar": [
+
+        "All Districts",
+        "Araria",
+        "Arwal",
+        "Aurangabad",
+        "Banka",
+        "Begusarai",
+        "Bhagalpur",
+        "Bhojpur",
+        "Buxar",
+        "Darbhanga",
+        "East Champaran",
+        "Gaya",
+        "Gopalganj",
+        "Jamui",
+        "Jehanabad",
+        "Kaimur",
+        "Katihar",
+        "Khagaria",
+        "Kishanganj",
+        "Lakhisarai",
+        "Madhepura",
+        "Madhubani",
+        "Munger",
+        "Muzaffarpur",
+        "Nalanda",
+        "Nawada",
+        "Patna",
+        "Purnia",
+        "Rohtas",
+        "Saharsa",
+        "Samastipur",
+        "Saran",
+        "Sheikhpura",
+        "Sheohar",
+        "Sitamarhi",
+        "Siwan",
+        "Supaul",
+        "Vaishali",
+        "West Champaran"
+
+    ],
+
+
+    "Chhattisgarh": [
+
+        "All Districts",
+        "Balod",
+        "Baloda Bazar",
+        "Balrampur",
+        "Bastar",
+        "Bemetara",
+        "Bijapur",
+        "Bilaspur",
+        "Dantewada",
+        "Dhamtari",
+        "Durg",
+        "Gariaband",
+        "Gaurela-Pendra-Marwahi",
+        "Janjgir-Champa",
+        "Jashpur",
+        "Kabirdham",
+        "Kanker",
+        "Khairagarh-Chhuikhadan-Gandai",
+        "Kondagaon",
+        "Korba",
+        "Koriya",
+        "Mahasamund",
+        "Manendragarh-Chirmiri-Bharatpur",
+        "Mohla-Manpur-Ambagarh Chowki",
+        "Mungeli",
+        "Narayanpur",
+        "Raigarh",
+        "Raipur",
+        "Rajnandgaon",
+        "Sakti",
+        "Sarangarh-Bilaigarh",
+        "Sukma",
+        "Surajpur",
+        "Surguja"
+
+    ],
+
+
+    "Goa": [
+
+        "All Districts",
+        "North Goa",
+        "South Goa"
+
+    ],
+
+
+    "Gujarat": [
+
+        "All Districts",
+        "Ahmedabad",
+        "Amreli",
+        "Anand",
+        "Aravalli",
+        "Banaskantha",
+        "Bharuch",
+        "Bhavnagar",
+        "Botad",
+        "Chhota Udaipur",
+        "Dahod",
+        "Dang",
+        "Devbhoomi Dwarka",
+        "Gandhinagar",
+        "Gir Somnath",
+        "Jamnagar",
+        "Junagadh",
+        "Kheda",
+        "Kutch",
+        "Mahisagar",
+        "Mehsana",
+        "Morbi",
+        "Narmada",
+        "Navsari",
+        "Panchmahal",
+        "Patan",
+        "Porbandar",
+        "Rajkot",
+        "Sabarkantha",
+        "Surat",
+        "Surendranagar",
+        "Tapi",
+        "Vadodara",
+        "Valsad"
+
+    ],
+
+
+    "Haryana": [
+
+        "All Districts",
+        "Ambala",
+        "Bhiwani",
+        "Charkhi Dadri",
+        "Faridabad",
+        "Fatehabad",
+        "Hisar",
+        "Jhajjar",
+        "Jind",
+        "Kaithal",
+        "Karnal",
+        "Kurukshetra",
+        "Mahendragarh",
+        "Nuh",
+        "Palwal",
+        "Panchkula",
+        "Panipat",
+        "Rewari",
+        "Rohtak",
+        "Sirsa",
+        "Sonipat",
+        "Yamunanagar"
+
+    ],
+
+
+    "Himachal Pradesh": [
+
+        "All Districts",
+        "Bilaspur",
+        "Chamba",
+        "Hamirpur",
+        "Kangra",
+        "Kinnaur",
+        "Kullu",
+        "Lahaul and Spiti",
+        "Mandi",
+        "Shimla",
+        "Sirmaur",
+        "Solan",
+        "Una"
+
+    ],
+
+
+    "Jharkhand": [
+
+        "All Districts",
+        "Bokaro",
+        "Chatra",
+        "Deoghar",
+        "Dhanbad",
+        "Dumka",
+        "East Singhbhum",
+        "Garhwa",
+        "Giridih",
+        "Godda",
+        "Gumla",
+        "Hazaribagh",
+        "Jamtara",
+        "Khunti",
+        "Koderma",
+        "Latehar",
+        "Lohardaga",
+        "Pakur",
+        "Palamu",
+        "Ramgarh",
+        "Ranchi",
+        "Sahibganj",
+        "Seraikela Kharsawan",
+        "Simdega",
+        "West Singhbhum"
+
+    ],
+
+
+    "Karnataka": [
+
+        "All Districts",
+        "Bagalkot",
+        "Ballari",
+        "Belagavi",
+        "Bengaluru Rural",
+        "Bengaluru Urban",
+        "Bidar",
+        "Chamarajanagar",
+        "Chikkaballapur",
+        "Chikkamagaluru",
+        "Chitradurga",
+        "Dakshina Kannada",
+        "Davanagere",
+        "Dharwad",
+        "Gadag",
+        "Hassan",
+        "Haveri",
+        "Kalaburagi",
+        "Kodagu",
+        "Kolar",
+        "Koppal",
+        "Mandya",
+        "Mysuru",
+        "Raichur",
+        "Ramanagara",
+        "Shivamogga",
+        "Tumakuru",
+        "Udupi",
+        "Uttara Kannada",
+        "Vijayapura",
+        "Yadgir"
+
+    ],
+
+
+    "Kerala": [
+
+        "All Districts",
+        "Alappuzha",
+        "Ernakulam",
+        "Idukki",
+        "Kannur",
+        "Kasaragod",
+        "Kollam",
+        "Kottayam",
+        "Kozhikode",
+        "Malappuram",
+        "Palakkad",
+        "Pathanamthitta",
+        "Thiruvananthapuram",
+        "Thrissur",
+        "Wayanad"
+
+    ],
+
+
+    "Madhya Pradesh": [
+
+        "All Districts",
+        "Agar Malwa",
+        "Alirajpur",
+        "Anuppur",
+        "Ashoknagar",
+        "Balaghat",
+        "Barwani",
+        "Betul",
+        "Bhind",
+        "Bhopal",
+        "Burhanpur",
+        "Chhatarpur",
+        "Chhindwara",
+        "Damoh",
+        "Datia",
+        "Dewas",
+        "Dhar",
+        "Dindori",
+        "Guna",
+        "Gwalior",
+        "Harda",
+        "Indore",
+        "Jabalpur",
+        "Jhabua",
+        "Katni",
+        "Khandwa",
+        "Khargone",
+        "Maihar",
+        "Mandla",
+        "Mandsaur",
+        "Mauganj",
+        "Morena",
+        "Narmadapuram",
+        "Narsinghpur",
+        "Neemuch",
+        "Niwari",
+        "Panna",
+        "Raisen",
+        "Rajgarh",
+        "Ratlam",
+        "Rewa",
+        "Sagar",
+        "Satna",
+        "Sehore",
+        "Seoni",
+        "Shahdol",
+        "Shajapur",
+        "Sheopur",
+        "Shivpuri",
+        "Sidhi",
+        "Singrauli",
+        "Tikamgarh",
+        "Ujjain",
+        "Umaria",
+        "Vidisha"
+
+    ],
+
+
+    "Maharashtra": [
+
+        "All Districts",
+        "Ahmednagar",
+        "Akola",
+        "Amravati",
+        "Aurangabad",
+        "Beed",
+        "Bhandara",
+        "Buldhana",
+        "Chandrapur",
+        "Dhule",
+        "Gadchiroli",
+        "Gondia",
+        "Hingoli",
+        "Jalgaon",
+        "Jalna",
+        "Kolhapur",
+        "Latur",
+        "Mumbai City",
+        "Mumbai Suburban",
+        "Nagpur",
+        "Nanded",
+        "Nandurbar",
+        "Nashik",
+        "Osmanabad",
+        "Palghar",
+        "Parbhani",
+        "Pune",
+        "Raigad",
+        "Ratnagiri",
+        "Sangli",
+        "Satara",
+        "Sindhudurg",
+        "Solapur",
+        "Thane",
+        "Wardha",
+        "Washim",
+        "Yavatmal"
+
+    ],
+
+
+    "Manipur": [
+
+        "All Districts",
+        "Bishnupur",
+        "Chandel",
+        "Churachandpur",
+        "Imphal East",
+        "Imphal West",
+        "Jiribam",
+        "Kakching",
+        "Kamjong",
+        "Kangpokpi",
+        "Noney",
+        "Pherzawl",
+        "Senapati",
+        "Tamenglong",
+        "Tengnoupal",
+        "Thoubal",
+        "Ukhrul"
+
+    ],
+
+
+    "Meghalaya": [
+
+        "All Districts",
+        "East Garo Hills",
+        "East Jaintia Hills",
+        "East Khasi Hills",
+        "Eastern West Khasi Hills",
+        "North Garo Hills",
+        "Ri-Bhoi",
+        "South Garo Hills",
+        "South West Garo Hills",
+        "South West Khasi Hills",
+        "West Garo Hills",
+        "West Jaintia Hills",
+        "West Khasi Hills"
+
+    ],
+
+
+    "Mizoram": [
+
+        "All Districts",
+        "Aizawl",
+        "Champhai",
+        "Hnahthial",
+        "Khawzawl",
+        "Kolasib",
+        "Lawngtlai",
+        "Lunglei",
+        "Mamit",
+        "Saiha",
+        "Saitual",
+        "Serchhip"
+
+    ],
+
+
+    "Nagaland": [
+
+        "All Districts",
+        "Chumoukedima",
+        "Dimapur",
+        "Kiphire",
+        "Kohima",
+        "Longleng",
+        "Meluri",
+        "Mokokchung",
+        "Mon",
+        "Niuland",
+        "Noklak",
+        "Peren",
+        "Phek",
+        "Shamator",
+        "Tseminyu",
+        "Tuensang",
+        "Wokha",
+        "Zunheboto"
+
+    ],
+
+
+    "Odisha": [
+
+        "All Districts",
+        "Angul",
+        "Balangir",
+        "Balasore",
+        "Bargarh",
+        "Bhadrak",
+        "Boudh",
+        "Cuttack",
+        "Deogarh",
+        "Dhenkanal",
+        "Gajapati",
+        "Ganjam",
+        "Jagatsinghpur",
+        "Jajpur",
+        "Jharsuguda",
+        "Kalahandi",
+        "Kandhamal",
+        "Kendrapara",
+        "Kendujhar",
+        "Khordha",
+        "Koraput",
+        "Malkangiri",
+        "Mayurbhanj",
+        "Nabarangpur",
+        "Nayagarh",
+        "Nuapada",
+        "Puri",
+        "Rayagada",
+        "Sambalpur",
+        "Subarnapur",
+        "Sundargarh"
+
+    ],
+
+
+    "Punjab": [
+
+        "All Districts",
+        "Amritsar",
+        "Barnala",
+        "Bathinda",
+        "Faridkot",
+        "Fatehgarh Sahib",
+        "Fazilka",
+        "Ferozepur",
+        "Gurdaspur",
+        "Hoshiarpur",
+        "Jalandhar",
+        "Kapurthala",
+        "Ludhiana",
+        "Malerkotla",
+        "Mansa",
+        "Moga",
+        "Pathankot",
+        "Patiala",
+        "Rupnagar",
+        "Sahibzada Ajit Singh Nagar",
+        "Sangrur",
+        "Shaheed Bhagat Singh Nagar",
+        "Sri Muktsar Sahib",
+        "Tarn Taran"
+
+    ],
+
+
+    "Rajasthan": [
+
+        "All Districts",
+        "Ajmer",
+        "Alwar",
+        "Balotra",
+        "Banswara",
+        "Baran",
+        "Barmer",
+        "Beawar",
+        "Bharatpur",
+        "Bhilwara",
+        "Bikaner",
+        "Bundi",
+        "Chittorgarh",
+        "Churu",
+        "Dausa",
+        "Deeg",
+        "Dholpur",
+        "Didwana-Kuchamana",
+        "Dudu",
+        "Dungarpur",
+        "Ganganagar",
+        "Gangapur City",
+        "Hanumangarh",
+        "Jaipur",
+        "Jaisalmer",
+        "Jalore",
+        "Jhalawar",
+        "Jhunjhunu",
+        "Jodhpur",
+        "Karauli",
+        "Kekri",
+        "Khairthal-Tijara",
+        "Kota",
+        "Kotputli-Behror",
+        "Nagaur",
+        "Neem Ka Thana",
+        "Pali",
+        "Phalodi",
+        "Pratapgarh",
+        "Rajsamand",
+        "Salumbar",
+        "Sawai Madhopur",
+        "Sikar",
+        "Sirohi",
+        "Tonk",
+        "Udaipur"
+
+    ],
+
+
+    "Sikkim": [
+
+        "All Districts",
+        "Gangtok",
+        "Gyalshing",
+        "Mangan",
+        "Namchi",
+        "Pakyong",
+        "Soreng"
+
+    ],
+
+
+    "Tamil Nadu": [
+
+        "All Districts",
+        "Ariyalur",
+        "Chengalpattu",
+        "Chennai",
+        "Coimbatore",
+        "Cuddalore",
+        "Dharmapuri",
+        "Dindigul",
+        "Erode",
+        "Kallakurichi",
+        "Kancheepuram",
+        "Karur",
+        "Krishnagiri",
+        "Madurai",
+        "Mayiladuthurai",
+        "Nagapattinam",
+        "Namakkal",
+        "Nilgiris",
+        "Perambalur",
+        "Pudukkottai",
+        "Ramanathapuram",
+        "Ranipet",
+        "Salem",
+        "Sivaganga",
+        "Tenkasi",
+        "Thanjavur",
+        "Theni",
+        "Thoothukudi",
+        "Tiruchirappalli",
+        "Tirunelveli",
+        "Tirupathur",
+        "Tiruppur",
+        "Tiruvallur",
+        "Tiruvannamalai",
+        "Tiruvarur",
+        "Vellore",
+        "Viluppuram",
+        "Virudhunagar"
+
+    ],
+
+
+    "Telangana": [
+
+        "All Districts",
+        "Adilabad",
+        "Bhadradri Kothagudem",
+        "Hanamkonda",
+        "Hyderabad",
+        "Jagtial",
+        "Jangaon",
+        "Jayashankar Bhupalpally",
+        "Jogulamba Gadwal",
+        "Kamareddy",
+        "Karimnagar",
+        "Khammam",
+        "Komaram Bheem Asifabad",
+        "Mahabubabad",
+        "Mahbubnagar",
+        "Mancherial",
+        "Medak",
+        "Medchal-Malkajgiri",
+        "Mulugu",
+        "Nagarkurnool",
+        "Nalgonda",
+        "Narayanpet",
+        "Nirmal",
+        "Nizamabad",
+        "Peddapalli",
+        "Rajanna Sircilla",
+        "Rangareddy",
+        "Sangareddy",
+        "Siddipet",
+        "Suryapet",
+        "Vikarabad",
+        "Wanaparthy",
+        "Warangal",
+        "Yadadri Bhuvanagiri"
+
+    ],
+
+
+    "Tripura": [
+
+        "All Districts",
+        "Dhalai",
+        "Gomati",
+        "Khowai",
+        "North Tripura",
+        "Sepahijala",
+        "South Tripura",
+        "Unakoti",
+        "West Tripura"
+
+    ],
+
+
+    "Uttar Pradesh": [
+
+        "All Districts",
+        "Agra",
+        "Aligarh",
+        "Ambedkar Nagar",
+        "Amethi",
+        "Amroha",
+        "Auraiya",
+        "Ayodhya",
+        "Azamgarh",
+        "Baghpat",
+        "Bahraich",
+        "Ballia",
+        "Balrampur",
+        "Banda",
+        "Barabanki",
+        "Bareilly",
+        "Basti",
+        "Bhadohi",
+        "Bijnor",
+        "Budaun",
+        "Bulandshahr",
+        "Chandauli",
+        "Chitrakoot",
+        "Deoria",
+        "Etah",
+        "Etawah",
+        "Farrukhabad",
+        "Fatehpur",
+        "Firozabad",
+        "Gautam Buddha Nagar",
+        "Ghaziabad",
+        "Ghazipur",
+        "Gonda",
+        "Gorakhpur",
+        "Hamirpur",
+        "Hapur",
+        "Hardoi",
+        "Hathras",
+        "Jalaun",
+        "Jaunpur",
+        "Jhansi",
+        "Kannauj",
+        "Kanpur Dehat",
+        "Kanpur Nagar",
+        "Kasganj",
+        "Kaushambi",
+        "Kushinagar",
+        "Lakhimpur Kheri",
+        "Lalitpur",
+        "Lucknow",
+        "Maharajganj",
+        "Mahoba",
+        "Mainpuri",
+        "Mathura",
+        "Mau",
+        "Meerut",
+        "Mirzapur",
+        "Moradabad",
+        "Muzaffarnagar",
+        "Pilibhit",
+        "Pratapgarh",
+        "Prayagraj",
+        "Raebareli",
+        "Rampur",
+        "Saharanpur",
+        "Sambhal",
+        "Sant Kabir Nagar",
+        "Shahjahanpur",
+        "Shamli",
+        "Shravasti",
+        "Siddharthnagar",
+        "Sitapur",
+        "Sonbhadra",
+        "Sultanpur",
+        "Unnao",
+        "Varanasi"
+
+    ],
+
+
+    "Uttarakhand": [
+
+        "All Districts",
+        "Almora",
+        "Bageshwar",
+        "Chamoli",
+        "Champawat",
+        "Dehradun",
+        "Haridwar",
+        "Nainital",
+        "Pauri Garhwal",
+        "Pithoragarh",
+        "Rudraprayag",
+        "Tehri Garhwal",
+        "Udham Singh Nagar",
+        "Uttarkashi"
+
+    ],
+
+
+    "West Bengal": [
+
+        "All Districts",
+        "Alipurduar",
+        "Bankura",
+        "Birbhum",
+        "Cooch Behar",
+        "Dakshin Dinajpur",
+        "Darjeeling",
+        "Hooghly",
+        "Howrah",
+        "Jalpaiguri",
+        "Jhargram",
+        "Kalimpong",
+        "Kolkata",
+        "Malda",
+        "Murshidabad",
+        "Nadia",
+        "North 24 Parganas",
+        "Paschim Bardhaman",
+        "Paschim Medinipur",
+        "Purba Bardhaman",
+        "Purba Medinipur",
+        "Purulia",
+        "South 24 Parganas",
+        "Uttar Dinajpur"
+
+    ],
+
+
+    "Andaman and Nicobar Islands": [
+
+        "All Districts",
+        "Nicobars",
+        "North and Middle Andaman",
+        "South Andaman"
+
+    ],
+
+
+    "Chandigarh": [
+
+        "All Districts",
+        "Chandigarh"
+
+    ],
+
+
+    "Dadra and Nagar Haveli and Daman and Diu": [
+
+        "All Districts",
+        "Dadra and Nagar Haveli",
+        "Daman",
+        "Diu"
+
+    ],
+
+
+    "Delhi": [
+
+        "All Districts",
+        "Central Delhi",
+        "East Delhi",
+        "New Delhi",
+        "North Delhi",
+        "North East Delhi",
+        "North West Delhi",
+        "Shahdara",
+        "South Delhi",
+        "South East Delhi",
+        "South West Delhi",
+        "West Delhi"
+
+    ],
+
+
+    "Jammu and Kashmir": [
+
+        "All Districts",
+        "Anantnag",
+        "Bandipora",
+        "Baramulla",
+        "Budgam",
+        "Doda",
+        "Ganderbal",
+        "Jammu",
+        "Kathua",
+        "Kishtwar",
+        "Kulgam",
+        "Kupwara",
+        "Poonch",
+        "Pulwama",
+        "Rajouri",
+        "Ramban",
+        "Reasi",
+        "Samba",
+        "Shopian",
+        "Srinagar",
+        "Udhampur"
+
+    ],
+
+
+    "Ladakh": [
+
+        "All Districts",
+        "Leh",
+        "Kargil"
+
+    ],
+
+
+    "Lakshadweep": [
+
+        "All Districts",
+        "Lakshadweep"
+
+    ],
+
+
+    "Puducherry": [
+
+        "All Districts",
+        "Karaikal",
+        "Mahe",
+        "Puducherry",
+        "Yanam"
+
+    ]
+
+};
+
+
+
+/* =========================================================
+   GET ELEMENTS
+   ========================================================= */
+
+const scopeInput =
+    document.getElementById(
+        "eligibilityScope"
+    );
+
+
+const stateInput =
+    document.getElementById(
+        "stateInput"
+    );
+
+
+const districtInput =
+    document.getElementById(
+        "districtInput"
+    );
+
+
+const districtNote =
+    document.getElementById(
+        "districtNote"
+    );
+
+
+const eligibilityForm =
+    document.getElementById(
+        "eligibilityForm"
+    );
+
+
+
+/* =========================================================
+   FORCE CORRECT SCOPE OPTIONS
+   ========================================================= */
+
+function forceCorrectScopeOptions() {
+
+
+    if (!scopeInput) {
+        return;
+    }
+
+
+    scopeInput.innerHTML =
+        "";
+
+
+    const indiaOption =
+        document.createElement(
+            "option"
+        );
+
+
+    indiaOption.value =
+        "all_india";
+
+
+    indiaOption.textContent =
+        "India";
+
+
+    scopeInput.appendChild(
+        indiaOption
+    );
+
+
+    const stateOption =
+        document.createElement(
+            "option"
+        );
+
+
+    stateOption.value =
+        "state";
+
+
+    stateOption.textContent =
+        "State";
+
+
+    scopeInput.appendChild(
+        stateOption
+    );
+
+
+    const districtOption =
+        document.createElement(
+            "option"
+        );
+
+
+    districtOption.value =
+        "district";
+
+
+    districtOption.textContent =
+        "District";
+
+
+    scopeInput.appendChild(
+        districtOption
+    );
+
+
+    scopeInput.value =
+        "all_india";
+
+}
+
+
+
+/* =========================================================
+   LOAD DISTRICTS
+   ========================================================= */
+
+function loadDistricts() {
+
+
+    if (
+        !stateInput ||
+        !districtInput ||
+        !districtNote
+    ) {
+
+        return;
+
+    }
+
+
+    const state =
+        stateInput.value;
+
+
+    districtInput.innerHTML =
+        "";
+
+
+
+    /* =====================================================
+       ALL STATES
+       ===================================================== */
+
+    if (
+        state === "all"
+    ) {
+
+
+        const option =
+            document.createElement(
+                "option"
+            );
+
+
+        option.value =
+            "all";
+
+
+        option.textContent =
+            "All Districts";
+
+
+        districtInput.appendChild(
+            option
+        );
+
+
+        districtInput.value =
+            "all";
+
+
+        districtNote.textContent =
+            "All States selected. Only All Districts is available.";
+
+
+        districtNote.classList.remove(
+            "active"
+        );
+
+
+        return;
+
+    }
+
+
+
+    /* =====================================================
+       STATE DISTRICTS
+       ===================================================== */
+
+    const districts =
+        districtsByState[state];
+
+
+    if (!districts) {
+
+
+        const option =
+            document.createElement(
+                "option"
+            );
+
+
+        option.value =
+            "all";
+
+
+        option.textContent =
+            "All Districts";
+
+
+        districtInput.appendChild(
+            option
+        );
+
+
+        districtInput.value =
+            "all";
+
+
+        districtNote.textContent =
+            "District data not available for this state.";
+
+
+        districtNote.classList.remove(
+            "active"
+        );
+
+
+        return;
+
+    }
+
+
+
+    districts.forEach(
+        function(districtName) {
+
+
+            const option =
+                document.createElement(
+                    "option"
+                );
+
+
+            if (
+                districtName ===
+                "All Districts"
+            ) {
+
+                option.value =
+                    "all";
+
+            } else {
+
+                option.value =
+                    districtName;
+
+            }
+
+
+            option.textContent =
+                districtName;
+
+
+            districtInput.appendChild(
+                option
+            );
+
+        }
+    );
+
+
+    districtInput.value =
+        "all";
+
+
+    districtNote.textContent =
+        "Showing all districts of " +
+        state +
+        ".";
+
+
+    districtNote.classList.add(
+        "active"
+    );
+
+}
+
+
+
+/* =========================================================
+   CHANGE ELIGIBILITY FIELDS
+   ========================================================= */
+
+function changeEligibilityFields() {
+
+
+    if (
+        !scopeInput ||
+        !stateInput ||
+        !districtInput ||
+        !districtNote
+    ) {
+
+        return;
+
+    }
+
+
+    const scope =
+        scopeInput.value;
+
+
+
+    /* =====================================================
+       INDIA
+       ===================================================== */
+
+    if (
+        scope === "all_india"
+    ) {
+
+
+        stateInput.disabled =
+            true;
+
+
+        districtInput.disabled =
+            true;
+
+
+        stateInput.value =
+            "all";
+
+
+        districtInput.innerHTML =
+            '<option value="all">All Districts</option>';
+
+
+        districtInput.value =
+            "all";
+
+
+        districtNote.textContent =
+            "Voting is allowed across India.";
+
+
+        districtNote.classList.add(
+            "active"
+        );
+
+
+        return;
+
+    }
+
+
+
+    /* =====================================================
+       STATE
+       ===================================================== */
+
+    if (
+        scope === "state"
+    ) {
+
+
+        stateInput.disabled =
+            false;
+
+
+        districtInput.disabled =
+            false;
+
+
+        if (
+            stateInput.value ===
+            "all"
+        ) {
+
+
+            districtInput.innerHTML =
+                '<option value="all">All Districts</option>';
+
+
+            districtInput.value =
+                "all";
+
+
+            districtNote.textContent =
+                "Select a state to view its districts.";
+
+
+            districtNote.classList.remove(
+                "active"
+            );
+
+
+        } else {
+
+
+            loadDistricts();
+
+        }
+
+
+        return;
+
+    }
+
+
+
+    /* =====================================================
+       DISTRICT
+       ===================================================== */
+
+    if (
+        scope === "district"
+    ) {
+
+
+        stateInput.disabled =
+            false;
+
+
+        districtInput.disabled =
+            false;
+
+
+        if (
+            stateInput.value ===
+            "all"
+        ) {
+
+
+            districtInput.innerHTML =
+                '<option value="all">All Districts</option>';
+
+
+            districtInput.value =
+                "all";
+
+
+            districtNote.textContent =
+                "Please select a specific State first.";
+
+
+            districtNote.classList.remove(
+                "active"
+            );
+
+
+        } else {
+
+
+            loadDistricts();
+
+        }
+
+    }
+
+}
+
+
+
+/* =========================================================
+   STATE CHANGE
+   ========================================================= */
+
+if (stateInput) {
+
+    stateInput.addEventListener(
+        "change",
+        function() {
+
+
+            if (
+                scopeInput.value === "state" ||
+                scopeInput.value === "district"
+            ) {
+
+
+                loadDistricts();
+
+            }
+
+        }
+    );
+
+}
+
+
+
+/* =========================================================
+   SCOPE CHANGE
+   ========================================================= */
+
+if (scopeInput) {
+
+    scopeInput.addEventListener(
+        "change",
+        changeEligibilityFields
+    );
+
+}
+
+
+
+/* =========================================================
+   ELIGIBILITY FORM SUBMIT
+   ========================================================= */
+
+if (eligibilityForm) {
+
+    eligibilityForm.addEventListener(
+        "submit",
+        function(event) {
+
+
+            const scope =
+                scopeInput.value;
+
+
+
+            /* =================================================
+               INDIA
+               ================================================= */
+
+            if (
+                scope === "all_india"
+            ) {
+
+
+                stateInput.disabled =
+                    false;
+
+
+                districtInput.disabled =
+                    false;
+
+
+                stateInput.value =
+                    "all";
+
+
+                districtInput.value =
+                    "all";
+
+
+                return true;
+
+            }
+
+
+
+            /* =================================================
+               STATE
+               ================================================= */
+
+            if (
+                scope === "state"
+            ) {
+
+
+                stateInput.disabled =
+                    false;
+
+
+                districtInput.disabled =
+                    false;
+
+
+                if (
+                    stateInput.value ===
+                    "all"
+                ) {
+
+
+                    event.preventDefault();
+
+
+                    alert(
+                        "Please select a specific State."
+                    );
+
+
+                    stateInput.focus();
+
+
+                    return false;
+
+                }
+
+
+                districtInput.value =
+                    "all";
+
+
+                return true;
+
+            }
+
+
+
+            /* =================================================
+               DISTRICT
+               ================================================= */
+
+            if (
+                scope === "district"
+            ) {
+
+
+                stateInput.disabled =
+                    false;
+
+
+                districtInput.disabled =
+                    false;
+
+
+                if (
+                    stateInput.value ===
+                    "all"
+                ) {
+
+
+                    event.preventDefault();
+
+
+                    alert(
+                        "Please select a specific State before selecting a District."
+                    );
+
+
+                    stateInput.focus();
+
+
+                    return false;
+
+                }
+
+
+                if (
+                    districtInput.value === "" ||
+                    districtInput.value === null
+                ) {
+
+
+                    event.preventDefault();
+
+
+                    alert(
+                        "Please select a District."
+                    );
+
+
+                    districtInput.focus();
+
+
+                    return false;
+
+                }
+
+
+                return true;
+
+            }
+
+        }
+    );
+
+}
+
+
+
+/* =========================================================
+   INITIALIZE
+   ========================================================= */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function() {
+
+
+        /* -----------------------------------------------
+           Scope
+        ----------------------------------------------- */
+
+        forceCorrectScopeOptions();
+
+
+
+        /* -----------------------------------------------
+           State
+        ----------------------------------------------- */
+
+        if (stateInput) {
+
+            stateInput.value =
+                "all";
+
+        }
+
+
+
+        /* -----------------------------------------------
+           District
+        ----------------------------------------------- */
+
+        if (districtInput) {
+
+            districtInput.innerHTML =
+                '<option value="all">All Districts</option>';
+
+
+            districtInput.value =
+                "all";
+
+        }
+
+
+
+        /* -----------------------------------------------
+           Eligibility
+        ----------------------------------------------- */
+
+        changeEligibilityFields();
+
+
+
+        /* -----------------------------------------------
+           Candidate form
+        ----------------------------------------------- */
+
+        if (
+            candidateElection &&
+            addCandidateForm
+        ) {
+
+            updateCandidateFormAction();
+
+        }
+
+
+
+        /* -----------------------------------------------
+           Schedule minimum date
+        ----------------------------------------------- */
+
+        const now = new Date();
+        const today = new Date(
+            now.getTime() - now.getTimezoneOffset() * 60000
+        ).toISOString().slice(0, 10);
+
+        document.querySelectorAll(".election-start-date").forEach(function(input) {
+            input.min = today;
+        });
+
+    }
+);
+
+
+
+const addCandidateRowBtn = document.getElementById("addCandidateRowBtn");
+const initialCandidates = document.getElementById("initialCandidates");
+if (addCandidateRowBtn && initialCandidates) {
+    addCandidateRowBtn.addEventListener("click", function () {
+        const row = document.createElement("div");
+        row.className = "form-grid initial-candidate-row";
+        row.style.marginBottom = "14px";
+        row.innerHTML = `
+            <div class="form-group"><label>Candidate Name</label><input name="name" maxlength="100" placeholder="Candidate name" required></div>
+            <div class="form-group"><label>Party / Group</label><input name="party" maxlength="100" placeholder="Party or group" required></div>
+            <div class="form-group"><label>Election Symbol Image</label><input type="file" name="party_symbol_file" accept="image/png,image/jpeg,image/webp" required><small>PNG, JPG or WEBP; max 5 MB.</small></div>
+            <div class="full-width"><button type="button" class="btn btn-danger remove-candidate-row">Remove Candidate</button></div>`;
+        initialCandidates.appendChild(row);
+        row.querySelector(".remove-candidate-row").addEventListener("click", function () { row.remove(); });
+    });
+}
+
+// Election-specific state/district eligibility controls
+(function () {
+    const scope = document.getElementById('new_scope');
+    const state = document.getElementById('new_state');
+    const district = document.getElementById('new_district');
+    const districtMap = {{ india_districts|tojson }};
+    function refreshEligibilityFields() {
+        if (!scope || !state || !district) return;
+        state.disabled = scope.value === 'all_india';
+        district.disabled = scope.value !== 'district';
+        if (scope.value === 'all_india') state.value = '';
+        if (scope.value !== 'district') district.value = '';
+        const selected = state.value;
+        const previous = district.value;
+        district.innerHTML = '<option value="">Select district</option>';
+        (districtMap[selected] || []).forEach(function (name) {
+            const option = document.createElement('option');
+            option.value = name; option.textContent = name; district.appendChild(option);
+        });
+        if ((districtMap[selected] || []).includes(previous)) district.value = previous;
+    }
+    if (scope && state && district) {
+        scope.addEventListener('change', refreshEligibilityFields);
+        state.addEventListener('change', refreshEligibilityFields);
+        refreshEligibilityFields();
+    }
+})();
+</script>
+
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  if (document.querySelector('.live-pill')) {
+    window.setInterval(function () { window.location.reload(); }, 15000);
+  }
+});
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('.election-time-info').forEach(function (box) {
+    const rawStart = (box.dataset.start || '').trim();
+    const durationSeconds = Number(box.dataset.duration || 0);
+    const startEl = box.querySelector('.election-start-display');
+    const endEl = box.querySelector('.election-end-display');
+    if (!rawStart) return;
+    // SQLite commonly stores ISO datetime with a space; normalize for browser parsing.
+    const startDate = new Date(rawStart.includes('T') ? rawStart : rawStart.replace(' ', 'T'));
+    if (Number.isNaN(startDate.getTime())) {
+      startEl.textContent = rawStart;
+      endEl.textContent = durationSeconds > 0 ? 'Calculated from duration' : 'Not scheduled';
+      return;
+    }
+    const formatDateTime = (date) => date.toLocaleString(undefined, {
+      year: 'numeric', month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit'
+    });
+    startEl.textContent = formatDateTime(startDate);
+    if (durationSeconds > 0) {
+      endEl.textContent = formatDateTime(new Date(startDate.getTime() + durationSeconds * 1000));
+    } else {
+      endEl.textContent = 'Duration not set';
+    }
+  });
+});
+</script>
+</body>
+
+</html>

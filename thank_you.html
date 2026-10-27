@@ -1,0 +1,155 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Vote Submitted Successfully</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .card {
+            width: 100%;
+            max-width: 600px;
+            background: white;
+            border-radius: 20px;
+            padding: 45px 30px;
+            text-align: center;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+        }
+
+        .success-icon {
+            width: 90px;
+            height: 90px;
+            margin: 0 auto 25px;
+            border-radius: 50%;
+            background: #22c55e;
+            color: white;
+            font-size: 55px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        h1 {
+            color: #1f2937;
+            margin-bottom: 15px;
+            font-size: 32px;
+        }
+
+        .message {
+            color: #4b5563;
+            font-size: 17px;
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
+
+        .notice {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            color: #166534;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 25px;
+            font-size: 15px;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            text-decoration: none;
+            padding: 13px 24px;
+            border-radius: 10px;
+            font-weight: bold;
+            display: inline-block;
+            transition: 0.2s;
+        }
+
+        .dashboard {
+            background: #4f46e5;
+            color: white;
+        }
+
+        .results {
+            background: #111827;
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            opacity: 0.9;
+        }
+
+        .footer {
+            margin-top: 25px;
+            color: #6b7280;
+            font-size: 13px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="card">
+
+    <div class="success-icon">
+        ✓
+    </div>
+
+    <h1>Vote Submitted Successfully!</h1>
+
+    <p class="message">
+        Thank you for participating in the election.
+        Your vote has been successfully recorded.
+    </p>
+
+    <div class="notice">
+        🔐 Your vote has been securely recorded in the voting system.
+        <br>
+        You cannot vote again in this election.
+    </div>
+
+    <div class="buttons">
+
+        <a href="{{ url_for('dashboard') }}"
+           class="btn dashboard">
+            🏠 Dashboard
+        </a>
+
+        <a href="{{ url_for('results') }}"
+           class="btn results">
+            📊 View Results
+        </a>
+
+    </div>
+
+    <div class="footer">
+        🇮🇳 Online Voting System
+    </div>
+
+</div>
+
+</body>
+</html>
+```

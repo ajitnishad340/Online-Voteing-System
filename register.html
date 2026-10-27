@@ -1,0 +1,2013 @@
+{% extends "base.html" %}
+
+{% block title %}Voter Registration 🇮🇳{% endblock %}
+
+{% block extra_css %}
+
+<style>
+
+.register-wrapper {
+    max-width: 900px;
+    margin: 10px auto;
+}
+
+.register-card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 35px;
+    box-shadow: 0 10px 30px rgba(0,0,0,.08);
+}
+
+.register-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.register-icon {
+    font-size: 55px;
+}
+
+.register-header h1 {
+    color: #172554;
+    font-size: 30px;
+    margin: 8px 0;
+}
+
+.register-header p {
+    color: #64748b;
+    font-size: 14px;
+}
+
+.section-title {
+    color: #172554;
+    font-size: 18px;
+    font-weight: 800;
+    margin: 25px 0 15px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #e5e7eb;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+}
+
+.form-group {
+    margin-bottom: 5px;
+}
+
+.form-group.full {
+    grid-column: 1 / -1;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 7px;
+    color: #334155;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 12px 13px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+    background: #fff;
+    box-sizing: border-box;
+}
+
+.form-group textarea {
+    min-height: 90px;
+    resize: vertical;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    border-color: #172554;
+    box-shadow: 0 0 0 3px rgba(23,37,84,.08);
+}
+
+.hint {
+    display: block;
+    margin-top: 5px;
+    color: #64748b;
+    font-size: 11px;
+}
+
+.declaration {
+    margin-top: 25px;
+    padding: 16px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 9px;
+}
+
+.declaration label {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    color: #334155;
+    font-size: 13px;
+    line-height: 1.6;
+    cursor: pointer;
+}
+
+.declaration input {
+    margin-top: 4px;
+    width: 17px;
+    height: 17px;
+    accent-color: #138808;
+}
+
+.submit-area {
+    text-align: center;
+    margin-top: 25px;
+}
+
+.submit-btn {
+    min-width: 230px;
+    padding: 14px 25px;
+    font-size: 15px;
+}
+
+.login-link {
+    text-align: center;
+    margin-top: 18px;
+    color: #64748b;
+    font-size: 13px;
+}
+
+.login-link a {
+    color: #172554;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+
+/* ==========================================
+   CAMERA PHOTO VERIFICATION
+========================================== */
+
+.camera-box {
+    margin-top: 10px;
+    padding: 20px;
+    background: #f8fafc;
+    border: 2px solid #cbd5e1;
+    border-radius: 14px;
+    text-align: center;
+}
+
+.camera-box p {
+    margin-top: 5px;
+    margin-bottom: 8px;
+}
+
+.camera-title {
+    color: #172554;
+    font-size: 16px;
+    font-weight: 800;
+}
+
+.camera-instruction {
+    color: #64748b;
+    font-size: 12px;
+}
+
+.camera-container {
+    position: relative;
+    width: 100%;
+    max-width: 600px;
+    margin: 15px auto 0;
+    overflow: hidden;
+    border-radius: 14px;
+    background: #111827;
+    aspect-ratio: 4 / 3;
+}
+
+#cameraVideo {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+
+    /* Mirror live camera */
+    transform: scaleX(-1);
+
+    background: #111827;
+}
+
+#photoCanvas {
+    display: none;
+}
+
+
+/* ==========================================
+   FACE OVAL GUIDE
+========================================== */
+
+.face-guide {
+    position: absolute;
+
+    width: 42%;
+    height: 70%;
+
+    left: 29%;
+    top: 15%;
+
+    border: 3px solid rgba(255,255,255,.9);
+
+    border-radius: 50%;
+
+    pointer-events: none;
+
+    box-shadow:
+        0 0 0 9999px rgba(0,0,0,.20);
+}
+
+
+/* ==========================================
+   CAMERA STATUS
+========================================== */
+
+.camera-status {
+    margin: 15px auto;
+
+    padding: 11px;
+
+    border-radius: 8px;
+
+    font-size: 13px;
+
+    font-weight: 700;
+
+    max-width: 600px;
+
+    background: #e2e8f0;
+
+    color: #334155;
+}
+
+.camera-status.good {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.camera-status.bad {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.camera-status.warning {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+
+/* ==========================================
+   CAMERA BUTTONS
+========================================== */
+
+.camera-buttons {
+    display: flex;
+
+    justify-content: center;
+
+    gap: 10px;
+
+    flex-wrap: wrap;
+
+    margin-top: 12px;
+}
+
+.camera-btn {
+    border: none;
+
+    border-radius: 8px;
+
+    padding: 11px 18px;
+
+    font-size: 13px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition: .2s;
+}
+
+.camera-btn:hover {
+    transform: translateY(-1px);
+}
+
+.open-camera {
+    background: #172554;
+    color: white;
+}
+
+.capture-btn {
+    background: #138808;
+    color: white;
+}
+
+.capture-btn:disabled {
+    background: #94a3b8;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.retake-btn {
+    background: #dc2626;
+    color: white;
+}
+
+.use-photo-btn {
+    background: #2563eb;
+    color: white;
+}
+
+.use-photo-btn:disabled {
+    opacity: .7;
+    cursor: default;
+}
+
+
+/* ==========================================
+   CAPTURED PHOTO
+========================================== */
+
+.photo-result {
+    display: none;
+
+    margin-top: 20px;
+
+    text-align: center;
+}
+
+#photoPreview {
+    display: block;
+
+    width: 220px;
+
+    height: 280px;
+
+    object-fit: cover;
+
+    margin: 0 auto 12px;
+
+    border-radius: 12px;
+
+    border: 3px solid #138808;
+}
+
+.photo-result-title {
+    color: #166534;
+
+    font-weight: 800;
+
+    margin-bottom: 12px;
+}
+
+
+/* ==========================================
+   AADHAAR STATUS
+========================================== */
+
+.aadhaar-status {
+    margin-top: 7px;
+
+    font-size: 12px;
+
+    font-weight: 700;
+}
+
+.aadhaar-valid {
+    color: #166534;
+}
+
+.aadhaar-invalid {
+    color: #b91c1c;
+}
+
+
+/* ==========================================
+   AGE STATUS
+========================================== */
+
+.age-status {
+    margin-top: 5px;
+
+    font-size: 12px;
+
+    font-weight: 700;
+}
+
+.age-valid {
+    color: #166534;
+}
+
+.age-invalid {
+    color: #b91c1c;
+}
+
+
+/* ==========================================
+   MOBILE
+========================================== */
+
+@media(max-width:650px) {
+
+    .register-card {
+        padding: 25px 18px;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .form-group.full {
+        grid-column: auto;
+    }
+
+    .register-header h1 {
+        font-size: 25px;
+    }
+
+    .camera-box {
+        padding: 15px;
+    }
+
+    .camera-buttons {
+        flex-direction: column;
+    }
+
+    .camera-btn {
+        width: 100%;
+    }
+
+    #photoPreview {
+        width: 180px;
+        height: 230px;
+    }
+
+}
+
+</style>
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="register-wrapper">
+
+<div class="register-card">
+
+
+    <!-- =====================================
+         HEADER
+    ====================================== -->
+
+    <div class="register-header">
+
+        <div class="register-icon">
+            🇮🇳
+        </div>
+
+        <h1>
+            Voter Registration
+        </h1>
+
+        <p>
+            Register yourself to participate in the online voting system
+        </p>
+
+    </div>
+
+
+    <!-- =====================================
+         FORM
+    ====================================== -->
+
+    <form method="POST"
+          action="{{ url_for('register') }}"
+          id="registrationForm">
+
+
+        <!-- =====================================
+             PERSONAL INFORMATION
+        ====================================== -->
+
+        <div class="section-title">
+            👤 Personal Information
+        </div>
+
+
+        <div class="form-grid">
+
+
+            <!-- NAME -->
+
+            <div class="form-group">
+
+                <label for="name">
+                    Full Name *
+                </label>
+
+                <input type="text"
+                       id="name"
+                       name="name"
+                       placeholder="Enter your full name"
+                       required>
+
+            </div>
+
+
+            <!-- FATHER NAME -->
+
+            <div class="form-group">
+
+                <label for="father_name">
+                    Father's Name *
+                </label>
+
+                <input type="text"
+                       id="father_name"
+                       name="father_name"
+                       placeholder="Enter father's name"
+                       required>
+
+            </div>
+
+
+            <!-- DOB -->
+
+            <div class="form-group">
+
+                <label for="dob">
+                    Date of Birth *
+                </label>
+
+                <input type="date"
+                       id="dob"
+                       name="dob"
+                       required>
+
+                <span class="hint">
+                    You must be 18 years or older.
+                </span>
+
+                <div id="ageStatus"
+                     class="age-status">
+                </div>
+
+            </div>
+
+
+            <!-- AADHAAR -->
+
+            <div class="form-group">
+
+                <label for="aadhaar">
+                    Aadhaar Number *
+                </label>
+
+                <input type="text"
+                       id="aadhaar"
+                       name="aadhaar"
+                       placeholder="12 digit Aadhaar number"
+                       maxlength="12"
+                       inputmode="numeric"
+                       autocomplete="off"
+                       autocapitalize="off"
+                       spellcheck="false"
+                       style="pointer-events: auto; position: relative; z-index: 2;"
+                       required>
+
+                <span class="hint">
+                    Enter exactly 12 digits.
+                </span>
+
+                <div id="aadhaarStatus"
+                     class="aadhaar-status">
+                </div>
+
+            </div>
+
+
+            <!-- MOBILE -->
+
+            <div class="form-group">
+
+                <label for="mobile">
+                    Mobile Number *
+                </label>
+
+                <input type="tel"
+                       id="mobile"
+                       name="mobile"
+                       placeholder="10 digit mobile number"
+                       maxlength="10"
+                       minlength="10"
+                       pattern="[0-9]{10}"
+                       inputmode="numeric"
+                       autocomplete="tel"
+                       required>
+
+            </div>
+
+
+            <!-- EMAIL -->
+
+            <div class="form-group">
+
+                <label for="email">
+                    Gmail / Email *
+                </label>
+
+                <input type="email"
+                       id="email"
+                       name="email"
+                       placeholder="example@gmail.com"
+                       autocomplete="email"
+                       required>
+
+            </div>
+
+        </div>
+
+
+        <!-- =====================================
+             LOGIN INFORMATION
+        ====================================== -->
+
+        <div class="section-title">
+            🔐 Login Information
+        </div>
+
+
+        <div class="form-grid">
+
+
+            <!-- PASSWORD -->
+
+            <div class="form-group">
+
+                <label for="password">
+                    Create Password *
+                </label>
+
+                <input type="password"
+                       id="password"
+                       name="password"
+                       placeholder="Create a strong password"
+                       minlength="6"
+                       required>
+
+            </div>
+
+
+            <!-- CONFIRM PASSWORD -->
+
+            <div class="form-group">
+
+                <label for="confirm_password">
+                    Confirm Password *
+                </label>
+
+                <input type="password"
+                       id="confirm_password"
+                       name="confirm_password"
+                       placeholder="Re-enter your password"
+                       minlength="6"
+                       required>
+
+            </div>
+
+        </div>
+
+
+        <!-- =====================================
+             ADDRESS INFORMATION
+        ====================================== -->
+
+        <div class="section-title">
+            📍 Address Information
+        </div>
+
+
+        <div class="form-grid">
+
+
+            <!-- ADDRESS -->
+
+            <div class="form-group full">
+
+                <label for="address">
+                    Full Address *
+                </label>
+
+                <textarea id="address"
+                          name="address"
+                          placeholder="House number, street, village/city, etc."
+                          required></textarea>
+
+            </div>
+
+
+            <!-- STATE -->
+
+            <div class="form-group">
+
+                <label for="state">
+                    State / Union Territory *
+                </label>
+
+                <select id="state"
+                        name="state"
+                        required>
+
+                    <option value="">
+                        Select State / UT
+                    </option>
+
+                    {% for state in indian_states %}
+
+                        <option value="{{ state }}">
+                            {{ state }}
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+
+            <!-- DISTRICT -->
+
+            <div class="form-group">
+
+                <label for="district">
+                    District *
+                </label>
+
+                <select id="district"
+                        name="district"
+                        required
+                        disabled>
+
+                    <option value="">
+                        First select State / UT
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- COUNTRY -->
+
+            <div class="form-group">
+
+                <label for="country">
+                    Country
+                </label>
+
+                <input type="text"
+                       id="country"
+                       name="country"
+                       value="India"
+                       readonly>
+
+            </div>
+
+        </div>
+
+
+        <!-- =====================================
+             CAMERA PHOTO VERIFICATION
+        ====================================== -->
+
+        <div class="section-title">
+            📷 Voter Photo Verification
+        </div>
+
+
+        <div class="camera-box">
+
+
+            <p class="camera-title">
+                Camera photo is required
+            </p>
+
+
+            <p class="camera-instruction">
+                Allow camera permission and keep exactly ONE face
+                clearly visible inside the oval frame.
+            </p>
+
+
+            <!-- CAMERA -->
+
+            <div class="camera-container">
+
+                <video id="cameraVideo"
+                       autoplay
+                       playsinline>
+                </video>
+
+                <div class="face-guide">
+                </div>
+
+            </div>
+
+
+            <!-- CANVAS -->
+
+            <canvas id="photoCanvas">
+            </canvas>
+
+
+            <!-- STATUS -->
+
+            <div id="cameraStatus"
+                 class="camera-status">
+
+                📷 Click "Open Camera" to start.
+
+            </div>
+
+
+            <!-- CAMERA BUTTONS -->
+
+            <div class="camera-buttons">
+
+
+                <button type="button"
+                        id="openCameraBtn"
+                        class="camera-btn open-camera">
+
+                    📷 Open Camera
+
+                </button>
+
+
+                <button type="button"
+                        id="captureBtn"
+                        class="camera-btn capture-btn"
+                        disabled>
+
+                    📸 Capture Photo
+
+                </button>
+
+
+            </div>
+
+
+            <!-- PHOTO RESULT -->
+
+            <div id="photoResult"
+                 class="photo-result">
+
+
+                <img id="photoPreview"
+                     alt="Captured voter photo">
+
+
+                <div class="photo-result-title">
+
+                    ✅ Photo Captured Successfully
+
+                </div>
+
+
+                <div class="camera-buttons">
+
+
+                    <button type="button"
+                            id="retakeBtn"
+                            class="camera-btn retake-btn">
+
+                        🔄 Retake
+
+                    </button>
+
+
+                    <button type="button"
+                            id="usePhotoBtn"
+                            class="camera-btn use-photo-btn">
+
+                        ✅ Use This Photo
+
+                    </button>
+
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =====================================
+             HIDDEN CAMERA PHOTO DATA
+        ====================================== -->
+
+        <input type="hidden"
+               id="photoData"
+               name="photo_data"
+               value="">
+
+
+        <!-- =====================================
+             DECLARATION
+        ====================================== -->
+
+        <div class="section-title">
+            📜 Declaration
+        </div>
+
+
+        <div class="declaration">
+
+
+            <label>
+
+                <input type="checkbox"
+                       name="declaration"
+                       value="1"
+                       required>
+
+
+                <span>
+
+                    I declare that the information provided by me is
+                    correct and belongs to me. I am an Indian citizen
+                    and I am 18 years or older. I understand that
+                    one Aadhaar number can be registered only once
+                    and one registered voter can cast only one vote.
+
+                </span>
+
+            </label>
+
+        </div>
+
+
+        <!-- =====================================
+             SUBMIT
+        ====================================== -->
+
+        <div class="submit-area">
+
+
+            <button type="submit"
+                    class="btn btn-success submit-btn"
+                    id="submitBtn">
+
+                📝 Create Voter Account
+
+            </button>
+
+
+        </div>
+
+
+        <!-- LOGIN -->
+
+        <div class="login-link">
+
+            Already registered?
+
+            <a href="{{ url_for('login') }}">
+                Login here
+            </a>
+
+        </div>
+
+
+    </form>
+
+</div>
+
+</div>
+
+
+<!-- ==========================================
+     JAVASCRIPT
+========================================== -->
+
+<script>
+
+
+/* ==========================================
+   STATE → DISTRICT
+========================================== */
+
+const stateSelect =
+    document.getElementById("state");
+
+const districtSelect =
+    document.getElementById("district");
+
+const districts =
+    {{ india_districts | tojson }};
+
+
+stateSelect.addEventListener(
+    "change",
+    function () {
+
+        const selectedState =
+            this.value;
+
+
+        districtSelect.innerHTML = "";
+
+
+        if (!selectedState) {
+
+            districtSelect.disabled =
+                true;
+
+
+            const option =
+                document.createElement("option");
+
+
+            option.value = "";
+
+            option.textContent =
+                "First select State / UT";
+
+
+            districtSelect.appendChild(
+                option
+            );
+
+
+            return;
+        }
+
+
+        districtSelect.disabled =
+            false;
+
+
+        const defaultOption =
+            document.createElement(
+                "option"
+            );
+
+
+        defaultOption.value = "";
+
+        defaultOption.textContent =
+            "Select District";
+
+
+        districtSelect.appendChild(
+            defaultOption
+        );
+
+
+        if (districts[selectedState]) {
+
+            districts[selectedState].forEach(
+                function (district) {
+
+                    const option =
+                        document.createElement(
+                            "option"
+                        );
+
+
+                    option.value =
+                        district;
+
+
+                    option.textContent =
+                        district;
+
+
+                    districtSelect.appendChild(
+                        option
+                    );
+
+                }
+            );
+
+        }
+
+    }
+);
+
+
+/* ==========================================
+   PASSWORD CHECK
+========================================== */
+
+const password =
+    document.getElementById("password");
+
+const confirmPassword =
+    document.getElementById("confirm_password");
+
+
+function checkPassword() {
+
+    if (
+        confirmPassword.value !==
+        password.value
+    ) {
+
+        confirmPassword.setCustomValidity(
+            "Passwords do not match."
+        );
+
+    } else {
+
+        confirmPassword.setCustomValidity(
+            ""
+        );
+
+    }
+
+}
+
+
+password.addEventListener(
+    "input",
+    checkPassword
+);
+
+confirmPassword.addEventListener(
+    "input",
+    checkPassword
+);
+
+
+/* ==========================================
+   AADHAAR INPUT
+========================================== */
+
+const aadhaar =
+    document.getElementById("aadhaar");
+
+const aadhaarStatus =
+    document.getElementById("aadhaarStatus");
+
+
+aadhaar.addEventListener("input", function () {
+    // Keep only digits and allow at most 12 characters.
+    const cursorPosition = this.selectionStart;
+    const cleanedValue = this.value.replace(/[^0-9]/g, "").slice(0, 12);
+
+    if (this.value !== cleanedValue) {
+        this.value = cleanedValue;
+        if (cursorPosition !== null) {
+            this.setSelectionRange(
+                Math.min(cursorPosition, cleanedValue.length),
+                Math.min(cursorPosition, cleanedValue.length)
+            );
+        }
+    }
+
+    checkAadhaar();
+});
+
+
+/* ==========================================
+   AADHAAR VALIDATION
+========================================== */
+
+/*
+   IMPORTANT:
+
+   This project does NOT perform real Aadhaar
+   verification.
+
+   Only these checks are performed here:
+
+   1. Exactly 12 digits
+   2. Numeric characters only
+
+   Verhoeff checksum has been intentionally removed.
+
+   Any duplicate Aadhaar checking should be
+   performed by the Flask backend/database.
+*/
+
+function checkAadhaar() {
+
+    const value =
+        aadhaar.value.trim();
+
+
+    /* Empty */
+
+    if (value.length === 0) {
+
+        aadhaarStatus.textContent =
+            "";
+
+        aadhaarStatus.className =
+            "aadhaar-status";
+
+        return false;
+
+    }
+
+
+    /* Exactly 12 digits */
+
+    if (!/^\d{12}$/.test(value)) {
+
+        aadhaarStatus.textContent =
+            "❌ Aadhaar number must contain exactly 12 digits.";
+
+        aadhaarStatus.className =
+            "aadhaar-status aadhaar-invalid";
+
+        return false;
+
+    }
+
+
+    /* Valid format */
+
+    aadhaarStatus.textContent =
+        "✅ Aadhaar number format is valid. Duplicate registration will be checked by server.";
+
+    aadhaarStatus.className =
+        "aadhaar-status aadhaar-valid";
+
+
+    return true;
+
+}
+
+
+/* ==========================================
+   AGE CHECK
+========================================== */
+
+const dob =
+    document.getElementById("dob");
+
+const ageStatus =
+    document.getElementById("ageStatus");
+
+
+/*
+   User cannot select a future date.
+*/
+
+dob.max =
+    new Date()
+    .toISOString()
+    .split("T")[0];
+
+
+function checkAge() {
+
+    if (!dob.value) {
+
+        ageStatus.textContent =
+            "";
+
+        ageStatus.className =
+            "age-status";
+
+        return false;
+
+    }
+
+
+    const birthDate =
+        new Date(
+            dob.value + "T00:00:00"
+        );
+
+
+    const today =
+        new Date();
+
+
+    /*
+       Future DOB protection
+    */
+
+    if (birthDate > today) {
+
+        ageStatus.textContent =
+            "❌ Date of birth cannot be in the future.";
+
+        ageStatus.className =
+            "age-status age-invalid";
+
+        return false;
+
+    }
+
+
+    let age =
+        today.getFullYear()
+        -
+        birthDate.getFullYear();
+
+
+    const month =
+        today.getMonth()
+        -
+        birthDate.getMonth();
+
+
+    if (
+        month < 0 ||
+        (
+            month === 0 &&
+            today.getDate()
+            <
+            birthDate.getDate()
+        )
+    ) {
+
+        age--;
+
+    }
+
+
+    /* Under 18 */
+
+    if (age < 18) {
+
+        ageStatus.textContent =
+            "❌ You must be 18 years or older.";
+
+        ageStatus.className =
+            "age-status age-invalid";
+
+        return false;
+
+    }
+
+
+    /* Eligible */
+
+    ageStatus.textContent =
+        "✅ Age eligible: "
+        + age
+        + " years";
+
+    ageStatus.className =
+        "age-status age-valid";
+
+
+    return true;
+
+}
+
+
+dob.addEventListener(
+    "change",
+    checkAge
+);
+
+dob.addEventListener(
+    "input",
+    checkAge
+);
+
+
+/* ==========================================
+   MOBILE NUMBER
+========================================== */
+
+const mobile =
+    document.getElementById("mobile");
+
+
+mobile.addEventListener(
+    "input",
+    function () {
+
+        this.value =
+            this.value
+            .replace(/\D/g, "")
+            .slice(0, 10);
+
+    }
+);
+
+
+/* ==========================================
+   CAMERA VARIABLES
+========================================== */
+
+const video =
+    document.getElementById(
+        "cameraVideo"
+    );
+
+const canvas =
+    document.getElementById(
+        "photoCanvas"
+    );
+
+const openCameraBtn =
+    document.getElementById(
+        "openCameraBtn"
+    );
+
+const captureBtn =
+    document.getElementById(
+        "captureBtn"
+    );
+
+const retakeBtn =
+    document.getElementById(
+        "retakeBtn"
+    );
+
+const usePhotoBtn =
+    document.getElementById(
+        "usePhotoBtn"
+    );
+
+const cameraStatus =
+    document.getElementById(
+        "cameraStatus"
+    );
+
+const photoPreview =
+    document.getElementById(
+        "photoPreview"
+    );
+
+const photoResult =
+    document.getElementById(
+        "photoResult"
+    );
+
+const photoData =
+    document.getElementById(
+        "photoData"
+    );
+
+
+let cameraStream =
+    null;
+
+
+let capturedPhoto =
+    null;
+
+
+/* ==========================================
+   CAMERA STATUS HELPER
+========================================== */
+
+function setCameraStatus(
+    message,
+    type = ""
+) {
+
+    cameraStatus.textContent =
+        message;
+
+
+    cameraStatus.className =
+        "camera-status";
+
+
+    if (type) {
+
+        cameraStatus.classList.add(
+            type
+        );
+
+    }
+
+}
+
+
+/* ==========================================
+   OPEN CAMERA FUNCTION
+========================================== */
+
+async function openCamera() {
+
+    try {
+
+        /*
+           Browser camera support check
+        */
+
+        if (
+            !navigator.mediaDevices ||
+            !navigator.mediaDevices.getUserMedia
+        ) {
+
+            throw new Error(
+                "Camera is not supported by this browser."
+            );
+
+        }
+
+
+        /*
+           Stop previous camera
+        */
+
+        stopCamera();
+
+
+        setCameraStatus(
+            "📷 Requesting camera permission...",
+            "warning"
+        );
+
+
+        /*
+           Request camera
+        */
+
+        cameraStream =
+            await navigator.mediaDevices.getUserMedia({
+
+                video: {
+
+                    facingMode: "user",
+
+                    width: {
+                        ideal: 1280
+                    },
+
+                    height: {
+                        ideal: 720
+                    }
+
+                },
+
+                audio: false
+
+            });
+
+
+        video.srcObject =
+            cameraStream;
+
+
+        await video.play();
+
+
+        captureBtn.disabled =
+            false;
+
+
+        setCameraStatus(
+            "✅ Camera active. Keep exactly ONE face inside the oval and make sure your face is clearly visible.",
+            "good"
+        );
+
+
+        openCameraBtn.textContent =
+            "📷 Camera Active";
+
+    }
+
+
+    catch (error) {
+
+        console.error(
+            "Camera Error:",
+            error
+        );
+
+
+        captureBtn.disabled =
+            true;
+
+
+        setCameraStatus(
+            "❌ Camera could not be opened. Please allow camera permission and try again.",
+            "bad"
+        );
+
+    }
+
+}
+
+
+/* ==========================================
+   OPEN CAMERA BUTTON
+========================================== */
+
+openCameraBtn.addEventListener(
+    "click",
+    openCamera
+);
+
+
+/* ==========================================
+   CAPTURE PHOTO
+========================================== */
+
+captureBtn.addEventListener(
+    "click",
+    function () {
+
+        if (
+            !cameraStream ||
+            !video.videoWidth
+        ) {
+
+            setCameraStatus(
+                "❌ Camera is not ready. Please open the camera first.",
+                "bad"
+            );
+
+            return;
+
+        }
+
+
+        /*
+           Set canvas size according
+           to actual camera resolution.
+        */
+
+        canvas.width =
+            video.videoWidth;
+
+
+        canvas.height =
+            video.videoHeight;
+
+
+        const ctx =
+            canvas.getContext("2d");
+
+
+        /*
+           Live camera is mirrored.
+
+           Reverse the mirror while
+           saving the captured image.
+        */
+
+        ctx.save();
+
+
+        ctx.translate(
+            canvas.width,
+            0
+        );
+
+
+        ctx.scale(
+            -1,
+            1
+        );
+
+
+        ctx.drawImage(
+            video,
+            0,
+            0,
+            canvas.width,
+            canvas.height
+        );
+
+
+        ctx.restore();
+
+
+        /*
+           Convert image to Base64 JPEG.
+        */
+
+        capturedPhoto =
+            canvas.toDataURL(
+                "image/jpeg",
+                0.90
+            );
+
+
+        /*
+           Show preview.
+        */
+
+        photoPreview.src =
+            capturedPhoto;
+
+
+        photoPreview.style.display =
+            "block";
+
+
+        photoResult.style.display =
+            "block";
+
+
+        /*
+           Photo is captured but
+           not yet selected.
+        */
+
+        photoData.value =
+            "";
+
+
+        usePhotoBtn.disabled =
+            false;
+
+
+        usePhotoBtn.textContent =
+            "✅ Use This Photo";
+
+
+        setCameraStatus(
+            "📸 Photo captured. Check that your face is clearly visible, then click 'Use This Photo'.",
+            "good"
+        );
+
+
+        /*
+           Stop camera after capture.
+        */
+
+        stopCamera();
+
+    }
+);
+
+
+/* ==========================================
+   USE PHOTO
+========================================== */
+
+usePhotoBtn.addEventListener(
+    "click",
+    function () {
+
+        if (!capturedPhoto) {
+
+            setCameraStatus(
+                "❌ Please capture a photo first.",
+                "bad"
+            );
+
+            return;
+
+        }
+
+
+        /*
+           Send Base64 photo to Flask.
+        */
+
+        photoData.value =
+            capturedPhoto;
+
+
+        setCameraStatus(
+            "✅ Photo selected successfully. Your captured camera photo will be submitted.",
+            "good"
+        );
+
+
+        usePhotoBtn.textContent =
+            "✅ Photo Ready";
+
+
+        usePhotoBtn.disabled =
+            true;
+
+    }
+);
+
+
+/* ==========================================
+   RETAKE PHOTO
+========================================== */
+
+retakeBtn.addEventListener(
+    "click",
+    function () {
+
+        capturedPhoto =
+            null;
+
+
+        photoData.value =
+            "";
+
+
+        photoPreview.src =
+            "";
+
+
+        photoPreview.style.display =
+            "none";
+
+
+        photoResult.style.display =
+            "none";
+
+
+        usePhotoBtn.disabled =
+            false;
+
+
+        usePhotoBtn.textContent =
+            "✅ Use This Photo";
+
+
+        setCameraStatus(
+            "📷 Opening camera again...",
+            "warning"
+        );
+
+
+        openCamera();
+
+    }
+);
+
+
+/* ==========================================
+   STOP CAMERA
+========================================== */
+
+function stopCamera() {
+
+    if (cameraStream) {
+
+        cameraStream
+        .getTracks()
+        .forEach(
+            function (track) {
+
+                track.stop();
+
+            }
+        );
+
+
+        cameraStream =
+            null;
+
+    }
+
+
+    video.srcObject =
+        null;
+
+
+    captureBtn.disabled =
+        true;
+
+
+    openCameraBtn.textContent =
+        "📷 Open Camera";
+
+}
+
+
+/* ==========================================
+   FORM SUBMIT VALIDATION
+========================================== */
+
+const registrationForm =
+    document.getElementById(
+        "registrationForm"
+    );
+
+
+registrationForm.addEventListener(
+    "submit",
+    function (event) {
+
+        /*
+           Password check
+        */
+
+        checkPassword();
+
+
+        /*
+           Browser required-field validation
+        */
+
+        if (
+            !registrationForm.checkValidity()
+        ) {
+
+            event.preventDefault();
+
+            return;
+
+        }
+
+
+        /*
+           Aadhaar validation
+
+           Only 12-digit format is checked.
+        */
+
+        if (!checkAadhaar()) {
+
+            event.preventDefault();
+
+
+            alert(
+                "Please enter exactly 12 digits for Aadhaar number."
+            );
+
+
+            aadhaar.focus();
+
+
+            return;
+
+        }
+
+
+        /*
+           Age validation
+        */
+
+        if (!checkAge()) {
+
+            event.preventDefault();
+
+
+            alert(
+                "Registration requires age 18 or above."
+            );
+
+
+            dob.focus();
+
+
+            return;
+
+        }
+
+
+        /*
+           Camera photo validation
+        */
+
+        if (!photoData.value) {
+
+            event.preventDefault();
+
+
+            alert(
+                "Please open the camera, capture your photo and click 'Use This Photo'."
+            );
+
+
+            setCameraStatus(
+                "❌ Voter photo is required before registration.",
+                "bad"
+            );
+
+
+            return;
+
+        }
+
+    }
+);
+
+
+/* ==========================================
+   STOP CAMERA WHEN PAGE CLOSES
+========================================== */
+
+window.addEventListener(
+    "beforeunload",
+    function () {
+
+        stopCamera();
+
+    }
+);
+
+</script>
+
+{% endblock %}

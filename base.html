@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>
+        {% block title %}
+        Voting System 🇮🇳
+        {% endblock %}
+    </title>
+
+
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+
+        body {
+
+            min-height: 100vh;
+
+            font-family:
+                Arial,
+                Helvetica,
+                sans-serif;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #fff4e6 0%,
+                    #ffffff 48%,
+                    #edf8ed 100%
+                );
+
+            color: #1f2937;
+        }
+
+
+        /* ================================
+           INDIA TRICOLOR TOP BAR
+        ================================= */
+
+        .tricolor {
+
+            height: 7px;
+
+            display: flex;
+
+            position: fixed;
+
+            top: 0;
+            left: 0;
+            right: 0;
+
+            z-index: 9999;
+        }
+
+
+        .orange {
+            flex: 1;
+            background: #ff9933;
+        }
+
+
+        .white {
+            flex: 1;
+            background: #ffffff;
+        }
+
+
+        .green {
+            flex: 1;
+            background: #138808;
+        }
+
+
+        /* ================================
+           NAVBAR
+        ================================= */
+
+        nav {
+
+            margin-top: 7px;
+
+            min-height: 76px;
+
+            padding:
+                14px 6%;
+
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            background: #ffffff;
+
+            border-bottom:
+                2px solid #e5e7eb;
+
+            box-shadow:
+                0 4px 18px
+                rgba(0, 0, 0, 0.06);
+
+            position: sticky;
+
+            top: 7px;
+
+            z-index: 1000;
+        }
+
+
+        /* LOGO */
+
+        .logo {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 10px;
+
+            color: #172554;
+
+            font-size: 23px;
+
+            font-weight: 800;
+
+            text-decoration: none;
+
+            white-space: nowrap;
+        }
+
+
+        .logo-flag {
+
+            font-size: 30px;
+        }
+
+
+        /* NAV LINKS */
+
+        .nav-links {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 8px;
+
+            flex-wrap: wrap;
+
+            justify-content: flex-end;
+        }
+
+
+        .nav-links a {
+
+            color: #334155;
+
+            text-decoration: none;
+
+            font-size: 13px;
+
+            font-weight: 700;
+
+            padding:
+                10px 13px;
+
+            border-radius: 7px;
+
+            transition: 0.25s;
+        }
+
+
+        .nav-links a:hover {
+
+            background: #f1f5f9;
+
+            color: #172554;
+        }
+
+
+        /* ADMIN BUTTON */
+
+        .nav-links .admin-nav {
+
+            background: #172554;
+
+            color: #ffffff;
+        }
+
+
+        .nav-links .admin-nav:hover {
+
+            background: #0f172a;
+
+            color: #ffffff;
+        }
+
+
+        /* ================================
+           MAIN CONTAINER
+        ================================= */
+
+        .page-container {
+
+            width: 100%;
+
+            max-width: 1200px;
+
+            margin: 0 auto;
+
+            padding:
+                45px 20px 70px;
+
+            min-height:
+                calc(100vh - 170px);
+        }
+
+
+        /* ================================
+           FLASH MESSAGES
+        ================================= */
+
+        .alert {
+
+            padding:
+                13px 16px;
+
+            margin-bottom: 20px;
+
+            border-radius: 8px;
+
+            font-size: 14px;
+
+            font-weight: 600;
+
+            border:
+                1px solid transparent;
+        }
+
+
+        .alert-success {
+
+            background: #ecfdf5;
+
+            color: #166534;
+
+            border-color: #bbf7d0;
+        }
+
+
+        .alert-danger {
+
+            background: #fef2f2;
+
+            color: #991b1b;
+
+            border-color: #fecaca;
+        }
+
+
+        .alert-warning {
+
+            background: #fffbeb;
+
+            color: #92400e;
+
+            border-color: #fde68a;
+        }
+
+
+        .alert-info {
+
+            background: #eff6ff;
+
+            color: #1e40af;
+
+            border-color: #bfdbfe;
+        }
+
+
+        /* ================================
+           COMMON BUTTONS
+        ================================= */
+
+        .btn {
+
+            display: inline-flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            gap: 8px;
+
+            padding:
+                12px 22px;
+
+            border-radius: 8px;
+
+            text-decoration: none;
+
+            border: none;
+
+            cursor: pointer;
+
+            font-size: 14px;
+
+            font-weight: 700;
+
+            transition: 0.25s;
+        }
+
+
+        .btn:hover {
+
+            transform:
+                translateY(-2px);
+
+            box-shadow:
+                0 7px 16px
+                rgba(0, 0, 0, 0.12);
+        }
+
+
+        .btn-primary {
+
+            background: #172554;
+
+            color: #ffffff;
+        }
+
+
+        .btn-success {
+
+            background: #138808;
+
+            color: #ffffff;
+        }
+
+
+        .btn-warning {
+
+            background: #ff9933;
+
+            color: #ffffff;
+        }
+
+
+        .btn-danger {
+
+            background: #dc2626;
+
+            color: #ffffff;
+        }
+
+
+        /* ================================
+           FOOTER
+        ================================= */
+
+        footer {
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #172554,
+                    #0f172a
+                );
+
+            color: #ffffff;
+
+            text-align: center;
+
+            padding:
+                30px 15px;
+
+            border-top:
+                5px solid #138808;
+        }
+
+
+        .footer-line {
+
+            height: 5px;
+
+            max-width: 220px;
+
+            margin:
+                0 auto 18px;
+
+            display: flex;
+
+            border-radius: 5px;
+
+            overflow: hidden;
+        }
+
+
+        .footer-line .orange {
+
+            background: #ff9933;
+        }
+
+
+        .footer-line .white {
+
+            background: #ffffff;
+        }
+
+
+        .footer-line .green {
+
+            background: #138808;
+        }
+
+
+        footer .title {
+
+            font-size: 19px;
+
+            font-weight: 800;
+
+            margin-bottom: 6px;
+        }
+
+
+        footer .tagline {
+
+            font-size: 13px;
+
+            color: #cbd5e1;
+
+            margin-bottom: 12px;
+        }
+
+
+        footer .developer {
+
+            font-size: 13px;
+
+            color: #e2e8f0;
+
+            margin-bottom: 10px;
+        }
+
+
+        footer .developer span {
+
+            color: #ff9933;
+
+            font-weight: 750;
+        }
+
+
+        footer small {
+
+            color: #94a3b8;
+
+            font-size: 11px;
+        }
+
+
+        /* ================================
+           MOBILE
+        ================================= */
+
+        @media(max-width: 800px) {
+
+            nav {
+
+                padding: 13px 20px;
+
+                flex-direction: column;
+
+                gap: 12px;
+            }
+
+
+            .nav-links {
+
+                justify-content: center;
+            }
+
+
+            .page-container {
+
+                padding:
+                    30px 15px 50px;
+            }
+        }
+
+
+        @media(max-width: 550px) {
+
+            .logo {
+
+                font-size: 20px;
+            }
+
+
+            .nav-links {
+
+                width: 100%;
+
+                gap: 4px;
+            }
+
+
+            .nav-links a {
+
+                font-size: 12px;
+
+                padding:
+                    8px 9px;
+            }
+
+
+            .page-container {
+
+                padding:
+                    25px 12px 45px;
+            }
+        }
+
+    </style>
+
+
+    {% block extra_css %}
+    {% endblock %}
+
+</head>
+
+
+<body>
+
+
+    <!-- =================================
+         INDIA TRICOLOR
+    ================================== -->
+
+    <div class="tricolor">
+
+        <div class="orange"></div>
+
+        <div class="white"></div>
+
+        <div class="green"></div>
+
+    </div>
+
+
+    <!-- =================================
+         NAVBAR
+    ================================== -->
+
+    <nav>
+
+        <!-- LOGO -->
+
+        <a href="{{ url_for('index') }}"
+           class="logo">
+
+            <span class="logo-flag">
+                🇮🇳
+            </span>
+
+            <span>
+                Voting System
+            </span>
+
+        </a>
+
+
+        <!-- NAVIGATION -->
+
+        <div class="nav-links">
+
+            <a href="{{ url_for('index') }}">
+                🏠 Home
+            </a>
+
+
+            <a href="{{ url_for('register') }}">
+                📝 Registration
+            </a>
+
+
+            <a href="{{ url_for('login') }}">
+                👤 Voter Login
+            </a>
+
+
+            <a href="{{ url_for('admin_login') }}"
+               class="admin-nav">
+
+                🛡️ Administrator
+
+            </a>
+
+        </div>
+
+    </nav>
+
+
+    <!-- =================================
+         MAIN CONTENT
+    ================================== -->
+
+    <main class="page-container">
+
+
+        <!-- FLASH MESSAGES -->
+
+        {% with messages =
+               get_flashed_messages(
+                   with_categories=true
+               )
+        %}
+
+            {% if messages %}
+
+                {% for category, message in messages %}
+
+                    <div class="alert alert-{{ category }}">
+
+                        {{ message }}
+
+                    </div>
+
+                {% endfor %}
+
+            {% endif %}
+
+        {% endwith %}
+
+
+        <!-- PAGE CONTENT -->
+
+        {% block content %}
+        {% endblock %}
+
+
+    </main>
+
+
+    <!-- =================================
+         FOOTER
+    ================================== -->
+
+    <footer>
+
+        <div class="footer-line">
+
+            <div class="orange"></div>
+
+            <div class="white"></div>
+
+            <div class="green"></div>
+
+        </div>
+
+
+        <p class="title">
+
+            🇮🇳 Voting System
+
+        </p>
+
+
+        <p class="tagline">
+
+            Secure • Simple • Reliable
+
+        </p>
+
+
+        <p class="developer">
+
+            Developed by
+
+            <span>
+                Subham Kumar Ojha
+            </span>
+
+            ❤️
+
+        </p>
+
+
+        <small>
+
+            © 2026 Voting System.
+            All Rights Reserved.
+
+        </small>
+
+    </footer>
+
+
+    {% block extra_js %}
+    {% endblock %}
+
+
+</body>
+
+</html>

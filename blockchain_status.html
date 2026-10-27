@@ -1,0 +1,272 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blockchain Verification | Online Voting System</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            padding: 25px;
+            color: #e2e8f0;
+            background: linear-gradient(135deg, #020617, #0f172a, #1e293b);
+        }
+
+        .container {
+            max-width: 1050px;
+            margin: 0 auto;
+        }
+
+        .header, .card {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 22px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+        }
+
+        .header h1 {
+            color: #ffffff;
+            font-size: 30px;
+            margin-bottom: 10px;
+        }
+
+        .header p, .description {
+            color: #cbd5e1;
+            line-height: 1.7;
+        }
+
+        .status {
+            margin-top: 22px;
+            padding: 22px;
+            border-radius: 12px;
+            border: 1px solid;
+        }
+
+        .status.valid {
+            background: rgba(34, 197, 94, 0.12);
+            border-color: rgba(34, 197, 94, 0.5);
+        }
+
+        .status.invalid {
+            background: rgba(239, 68, 68, 0.12);
+            border-color: rgba(239, 68, 68, 0.5);
+        }
+
+        .status h2 {
+            margin-bottom: 12px;
+            font-size: 23px;
+        }
+
+        .valid-text {
+            color: #4ade80;
+        }
+
+        .invalid-text {
+            color: #f87171;
+        }
+
+        .message {
+            line-height: 1.7;
+            overflow-wrap: anywhere;
+        }
+
+        .card h2 {
+            color: #93c5fd;
+            font-size: 21px;
+            margin-bottom: 15px;
+        }
+
+        .details p {
+            margin: 10px 0;
+            line-height: 1.6;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 6px 11px;
+            border-radius: 20px;
+            background: rgba(59, 130, 246, 0.18);
+            color: #bfdbfe;
+            font-size: 13px;
+        }
+
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 22px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 17px;
+            border-radius: 9px;
+            text-decoration: none;
+            color: white;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            opacity: 0.9;
+        }
+
+        .btn-blue {
+            background: #2563eb;
+        }
+
+        .btn-green {
+            background: #15803d;
+        }
+
+        .btn-red {
+            background: #b91c1c;
+        }
+
+        .info-list {
+            padding-left: 22px;
+            line-height: 1.9;
+            color: #cbd5e1;
+        }
+
+        .footer {
+            text-align: center;
+            color: #94a3b8;
+            padding: 15px 0;
+            font-size: 13px;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 12px;
+            }
+
+            .header, .card {
+                padding: 17px;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .status h2 {
+                font-size: 19px;
+            }
+
+            .actions {
+                flex-direction: column;
+            }
+
+            .btn {
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+<div class="container">
+
+    <section class="header">
+        <h1>🔐 Blockchain Verification</h1>
+        <p>
+            Online Voting System — verification of the stored
+            blockchain records for integrity and consistency.
+        </p>
+
+        {% if election %}
+        <div class="details" style="margin-top: 18px;">
+            <p>
+                <strong>Election:</strong>
+                {{ election['name'] }}
+            </p>
+            <p>
+                <strong>Election ID:</strong>
+                {{ election['id'] }}
+            </p>
+        </div>
+        {% endif %}
+
+        {% if valid %}
+        <div class="status valid">
+            <h2 class="valid-text">✅ Blockchain Status: VALID</h2>
+            <p class="message">
+                {{ message | default('Blockchain verification completed successfully.', true) }}
+            </p>
+        </div>
+        {% else %}
+        <div class="status invalid">
+            <h2 class="invalid-text">❌ Blockchain Status: INVALID</h2>
+            <p class="message">
+                {{ message | default('Blockchain verification failed. Check the stored records.', true) }}
+            </p>
+        </div>
+        {% endif %}
+    </section>
+
+    <section class="card">
+        <h2>🛡️ What does verification check?</h2>
+
+        <ul class="info-list">
+            <li>Whether each block's stored hash matches its calculated hash.</li>
+            <li>Whether each block links to the expected previous block hash.</li>
+            <li>Whether the verification function detects inconsistencies in the stored chain.</li>
+        </ul>
+
+        <p class="description" style="margin-top: 15px;">
+            A VALID result means the application's verification function
+            accepted the records it checked. It does not independently
+            prove that an election is secure or that the original vote
+            data was correct.
+        </p>
+    </section>
+
+    <section class="card">
+        <h2>⚙️ Available Actions</h2>
+        <p class="description">
+            Return to the admin dashboard or run the blockchain
+            verification again.
+        </p>
+
+        <div class="actions">
+            <a href="{{ url_for('admin_dashboard') }}"
+               class="btn btn-blue">
+                🏠 Admin Dashboard
+            </a>
+
+            <a href="{{ url_for('blockchain_status') }}"
+               class="btn btn-green">
+                🔄 Verify Again
+            </a>
+
+            <a href="{{ url_for('blockchain') }}"
+               class="btn btn-blue">
+                🔗 View Blockchain Records
+            </a>
+
+            <a href="{{ url_for('admin_logout') }}"
+               class="btn btn-red">
+                🚪 Logout
+            </a>
+        </div>
+    </section>
+
+    <div class="footer">
+        Online Voting System | Blockchain Integrity Verification
+    </div>
+
+</div>
+</body>
+</html>

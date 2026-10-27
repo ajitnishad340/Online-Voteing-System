@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Voting Not Started</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 650px;
+            background: white;
+            border-radius: 20px;
+            padding: 45px 35px;
+            text-align: center;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.25);
+        }
+
+        .icon {
+            width: 110px;
+            height: 110px;
+            margin: 0 auto 20px;
+            border-radius: 50%;
+            background: #fff3cd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
+        }
+
+        h1 {
+            color: #856404;
+            font-size: 32px;
+            margin-bottom: 12px;
+        }
+
+        .message {
+            color: #666;
+            line-height: 1.7;
+            margin-bottom: 25px;
+        }
+
+        .status-box {
+            background: #fff8df;
+            border: 1px solid #ffe08a;
+            border-radius: 12px;
+            padding: 22px;
+            margin-bottom: 25px;
+        }
+
+        .status-box h2 {
+            color: #795600;
+            margin-bottom: 10px;
+        }
+
+        .status-box p {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .timer {
+            margin-top: 15px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #d68910;
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-block;
+            text-decoration: none;
+            padding: 13px 25px;
+            border-radius: 9px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .dashboard {
+            background: #667eea;
+            color: white;
+        }
+
+        .logout {
+            background: #343a40;
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 7px 15px rgba(0,0,0,0.2);
+        }
+
+        .note {
+            margin-top: 25px;
+            color: #888;
+            font-size: 13px;
+        }
+
+        @media (max-width: 500px) {
+            .container {
+                padding: 35px 20px;
+            }
+
+            h1 {
+                font-size: 27px;
+            }
+
+            .buttons {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="icon">
+        🕐
+    </div>
+
+    <h1>
+        Voting Has Not Started
+    </h1>
+
+    <p class="message">
+        Hello {{ user['name'] }}, the voting process has not started yet.
+        Please wait until the scheduled voting time.
+    </p>
+
+
+    <div class="status-box">
+
+        <h2>
+            ⏳ Please Wait
+        </h2>
+
+        <p>
+            Voting will automatically become available when the
+            scheduled voting start time is reached.
+        </p>
+
+        <div class="timer" id="timer">
+            Checking voting status...
+        </div>
+
+    </div>
+
+
+    <div class="buttons">
+
+        <a href="{{ url_for('dashboard') }}"
+           class="btn dashboard">
+            🏠 Back to Dashboard
+        </a>
+
+        <a href="{{ url_for('logout') }}"
+           class="btn logout">
+            🚪 Logout
+        </a>
+
+    </div>
+
+
+    <p class="note">
+        🔒 Secure Online Voting System
+    </p>
+
+</div>
+
+
+<script>
+
+    function checkVotingStatus() {
+
+        fetch("{{ url_for('voting_status_api') }}")
+
+        .then(response => response.json())
+
+        .then(data => {
+
+            const timer = document.getElementById("timer");
+
+            if (data.status === "not_started") {
+
+                let seconds = data.remaining_seconds || 0;
+
+                let hours = Math.floor(seconds / 3600);
+
+                let minutes = Math.floor(
+                    (seconds % 3600) / 60
+                );
+
+                let secs = seconds % 60;
+
+                if (hours > 0) {
+
+                    timer.innerHTML =
+                        "Starts in " +
+                        hours + "h " +
+                        minutes + "m " +
+                        secs + "s";
+
+                } else {
+
+                    timer.innerHTML =
+                        "Starts in " +
+                        minutes + "m " +
+                        secs + "s";
+
+                }
+
+            }
+
+            else if (data.status === "active") {
+
+                window.location.href =
+                    "{{ url_for('vote') }}";
+
+            }
+
+            else if (data.status === "ended") {
+
+                window.location.href =
+                    "{{ url_for('voting_ended') }}";
+
+            }
+
+        })
+
+        .catch(() => {
+
+            document.getElementById("timer").innerHTML =
+                "Unable to check voting status";
+
+        });
+
+    }
+
+
+    checkVotingStatus();
+
+    setInterval(checkVotingStatus, 1000);
+
+</script>
+
+</body>
+</html>

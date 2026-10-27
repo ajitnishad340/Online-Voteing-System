@@ -1,0 +1,816 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>{% if election %}{{ election['name'] }} - {% endif %}Election Results 🇮🇳</title>
+
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #141e30,
+                    #243b55
+                );
+
+            padding: 30px 15px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: auto;
+        }
+
+        /* =========================
+           INDIA HEADER BRAND
+        ========================= */
+
+        .india-brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+
+            background: #ffffff;
+
+            padding: 8px 18px;
+
+            border-radius: 50px;
+
+            margin-bottom: 15px;
+
+            box-shadow:
+                0 5px 15px
+                rgba(0,0,0,0.15);
+
+            font-weight: bold;
+
+            color: #333;
+
+            font-size: 16px;
+        }
+
+        .india-flag {
+            font-size: 30px;
+            line-height: 1;
+        }
+
+        /* =========================
+           HEADER
+        ========================= */
+
+        .header {
+            background: white;
+
+            border-radius: 20px;
+
+            padding: 30px;
+
+            text-align: center;
+
+            box-shadow:
+                0 15px 40px
+                rgba(0,0,0,0.25);
+
+            margin-bottom: 25px;
+        }
+
+        .header h1 {
+            color: #2d3436;
+            font-size: 35px;
+        }
+
+        .header p {
+            margin-top: 10px;
+            color: #666;
+            font-size: 17px;
+        }
+
+        .national-text {
+            margin-top: 12px;
+
+            font-size: 15px;
+
+            font-weight: bold;
+
+            color: #555;
+        }
+
+        /* =========================
+           STATUS
+        ========================= */
+
+        .status {
+            margin-top: 15px;
+
+            font-size: 16px;
+
+            font-weight: bold;
+        }
+
+        .status-ended {
+            color: #00b894;
+        }
+
+        .status-active {
+            color: #0984e3;
+        }
+
+        .status-not-started {
+            color: #e17055;
+        }
+
+        /* =========================
+           WINNER
+        ========================= */
+
+        .winner {
+            background:
+                linear-gradient(
+                    135deg,
+                    #f6d365,
+                    #fda085
+                );
+
+            border-radius: 20px;
+
+            padding: 30px;
+
+            text-align: center;
+
+            margin-bottom: 25px;
+
+            box-shadow:
+                0 15px 35px
+                rgba(0,0,0,0.2);
+        }
+
+        .winner .trophy {
+            font-size: 65px;
+        }
+
+        .winner h2 {
+            margin-top: 10px;
+            color: #5a3d00;
+        }
+
+        .winner-name {
+            font-size: 30px;
+
+            font-weight: bold;
+
+            margin-top: 10px;
+
+            color: #222;
+        }
+
+        .winner-party {
+            margin-top: 8px;
+
+            font-size: 18px;
+
+            color: #555;
+        }
+
+        .winner-message {
+            margin-top: 15px;
+
+            font-size: 16px;
+
+            color: #333;
+        }
+
+        .winner-symbol-wrap {
+            display: flex;
+            justify-content: center;
+            margin: 18px 0 8px;
+        }
+        .winner-symbol {
+            width: 100px;
+            height: 100px;
+            object-fit: contain;
+            padding: 8px;
+            border-radius: 16px;
+            background: rgba(255,255,255,0.8);
+            border: 1px solid rgba(90,61,0,0.2);
+        }
+        .candidate-symbol-wrap {
+            width: 64px;
+            height: 64px;
+            flex: 0 0 64px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            overflow: hidden;
+        }
+        .candidate-symbol {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            padding: 5px;
+        }
+        .candidate-main {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            min-width: 0;
+        }
+        .symbol-fallback {
+            font-size: 28px;
+        }
+
+        /* =========================
+           RESULTS BOX
+        ========================= */
+
+        .results-box {
+            background: white;
+
+            border-radius: 20px;
+
+            padding: 25px;
+
+            box-shadow:
+                0 15px 40px
+                rgba(0,0,0,0.25);
+        }
+
+        .results-box h2 {
+            text-align: center;
+
+            margin-bottom: 25px;
+
+            color: #333;
+        }
+
+        /* =========================
+           TOTAL VOTES
+        ========================= */
+
+        .total-votes {
+            text-align: center;
+
+            background: #f8f9fa;
+
+            border-radius: 12px;
+
+            padding: 15px;
+
+            margin-bottom: 25px;
+
+            font-size: 18px;
+
+            color: #444;
+        }
+
+        .total-votes strong {
+            color: #0984e3;
+
+            font-size: 24px;
+        }
+
+        /* =========================
+           CANDIDATE
+        ========================= */
+
+        .candidate {
+            border: 1px solid #ddd;
+
+            border-radius: 15px;
+
+            padding: 20px;
+
+            margin-bottom: 18px;
+
+            transition: 0.3s;
+
+            background: #ffffff;
+        }
+
+        .candidate:hover {
+            transform: translateY(-3px);
+
+            box-shadow:
+                0 8px 20px
+                rgba(0,0,0,0.12);
+        }
+
+        .candidate-top {
+            display: flex;
+
+            justify-content:
+                space-between;
+
+            align-items: center;
+
+            gap: 10px;
+        }
+
+        .candidate-name {
+            font-size: 20px;
+
+            font-weight: bold;
+
+            color: #2d3436;
+        }
+
+        .party {
+            color: #777;
+
+            margin-top: 5px;
+
+            font-size: 15px;
+        }
+
+        .votes {
+            font-size: 22px;
+
+            font-weight: bold;
+
+            color: #6c5ce7;
+
+            white-space: nowrap;
+        }
+
+        /* =========================
+           VOTE BAR
+        ========================= */
+
+        .bar-container {
+            width: 100%;
+
+            height: 15px;
+
+            background: #eee;
+
+            border-radius: 20px;
+
+            margin-top: 15px;
+
+            overflow: hidden;
+        }
+
+        .bar {
+            height: 100%;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    #6c5ce7,
+                    #00b894
+                );
+
+            border-radius: 20px;
+
+            transition:
+                width 0.8s ease;
+        }
+
+        .percentage {
+            margin-top: 8px;
+
+            color: #666;
+
+            font-size: 14px;
+        }
+
+        /* =========================
+           NO RESULTS
+        ========================= */
+
+        .no-results {
+            text-align: center;
+
+            padding: 40px 20px;
+
+            color: #777;
+        }
+
+        .no-results h3 {
+            font-size: 24px;
+
+            margin-bottom: 10px;
+        }
+
+        /* =========================
+           BUTTONS
+        ========================= */
+
+        .buttons {
+            text-align: center;
+
+            margin-top: 25px;
+        }
+
+        .btn {
+            display: inline-block;
+
+            text-decoration: none;
+
+            padding: 13px 24px;
+
+            border-radius: 10px;
+
+            margin: 5px;
+
+            color: white;
+
+            font-weight: bold;
+
+            transition: 0.3s;
+        }
+
+        .dashboard {
+            background: #00b894;
+        }
+
+        .logout {
+            background: #d63031;
+        }
+
+        .btn:hover {
+            transform:
+                translateY(-3px);
+
+            opacity: 0.9;
+        }
+
+        /* =========================
+           MOBILE
+        ========================= */
+
+        @media (max-width: 600px) {
+
+            .header h1 {
+                font-size: 27px;
+            }
+
+            .candidate-top {
+                flex-direction: column;
+
+                align-items:
+                    flex-start;
+            }
+
+            .votes {
+                font-size: 18px;
+            }
+
+            .winner-name {
+                font-size: 24px;
+            }
+
+            .btn {
+                width: 90%;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<div class="container">
+
+
+    <!-- =========================
+         INDIA BRAND
+    ========================= -->
+
+    <div style="text-align:center;">
+
+        <div class="india-brand">
+
+            <span class="india-flag">
+                🇮🇳
+            </span>
+
+            <span>
+                GOVERNMENT OF INDIA
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================
+         HEADER
+    ========================= -->
+
+    <div class="header">
+
+        <h1>
+            🇮🇳 🏆 Election Results
+        </h1>
+
+        {% if election %}
+        <p><strong>{{ election['name'] }}</strong>{% if election['election_type'] %} · {{ election['election_type'] }}{% endif %}</p>
+        {% endif %}
+        <p>
+            Results of the Online Voting System
+        </p>
+
+        <div class="national-text">
+            🇮🇳 Secure • Transparent • Digital Voting
+        </div>
+
+
+        <!-- VOTING STATUS -->
+
+        {% if voting_state == "ended" %}
+
+            <div class="status status-ended">
+
+                🟢 Voting has ended —
+                Final Results Available
+
+            </div>
+
+        {% elif voting_state == "active" %}
+
+            <div class="status status-active">
+
+                🔵 Voting is currently active
+
+            </div>
+
+        {% else %}
+
+            <div class="status status-not-started">
+
+                🟠 Voting has not started yet
+
+            </div>
+
+        {% endif %}
+
+    </div>
+
+
+    <!-- =========================
+         WINNER
+    ========================= -->
+
+    {% if winner %}
+
+        <div class="winner">
+
+            <div class="trophy">
+                🏆
+            </div>
+
+            <h2>
+                Election Winner
+            </h2>
+
+            <div class="winner-name">
+                {{ winner.name }}
+            </div>
+
+            {% set winner_symbol = (winner['party_symbol'] or '')|string %}
+            {% if winner_symbol.lower().endswith(('.png', '.jpg', '.jpeg', '.webp')) %}
+                {% if winner_symbol.startswith('uploads/symbols/') %}
+                    {% set winner_symbol_url = url_for('static', filename=winner_symbol) %}
+                {% elif winner_symbol.startswith('static/') %}
+                    {% set winner_symbol_url = '/' ~ winner_symbol %}
+                {% else %}
+                    {% set winner_symbol_url = url_for('static', filename='uploads/symbols/' ~ winner_symbol) %}
+                {% endif %}
+                <div class="winner-symbol-wrap">
+                    <img class="winner-symbol" src="{{ winner_symbol_url }}" alt="Winning candidate election symbol" onerror="this.style.display='none';">
+                </div>
+            {% else %}
+                <div class="winner-symbol-wrap"><span class="symbol-fallback">{{ winner_symbol or '🗳️' }}</span></div>
+            {% endif %}
+
+            <div class="winner-party">
+                🏛️ {{ winner['party'] }}
+            </div>
+
+            <div class="winner-message">
+                🎉 Congratulations
+                to the winning candidate!
+            </div>
+
+        </div>
+
+    {% endif %}
+
+
+    <!-- =========================
+         RESULTS
+    ========================= -->
+
+    <div class="results-box">
+
+        <h2>
+            📊 Candidate Results
+        </h2>
+
+
+        {% if candidates %}
+
+
+            <!-- TOTAL VOTES -->
+
+            {% set total_votes =
+                candidates
+                | map(attribute='votes')
+                | sum
+            %}
+
+            <div class="total-votes">
+
+                Total Votes Cast:
+
+                <strong>
+                    {{ total_votes }}
+                </strong>
+
+            </div>
+
+
+            <!-- HIGHEST VOTES -->
+
+            {% set max_votes =
+                candidates
+                | map(attribute='votes')
+                | max
+            %}
+
+
+            <!-- CANDIDATES -->
+
+            {% for candidate in candidates %}
+
+
+                {% if total_votes > 0 %}
+                    {% set percentage = (candidate.votes / total_votes * 100) %}
+                {% else %}
+                    {% set percentage = 0 %}
+                {% endif %}
+
+
+                <div class="candidate">
+
+
+                    <!-- CANDIDATE INFORMATION -->
+
+                    <div class="candidate-top">
+
+                        <div class="candidate-main">
+                            {% set candidate_symbol = (candidate['party_symbol'] or '')|string %}
+                            <div class="candidate-symbol-wrap">
+                                {% if candidate_symbol.lower().endswith(('.png', '.jpg', '.jpeg', '.webp')) %}
+                                    {% if candidate_symbol.startswith('uploads/symbols/') %}
+                                        {% set candidate_symbol_url = url_for('static', filename=candidate_symbol) %}
+                                    {% elif candidate_symbol.startswith('static/') %}
+                                        {% set candidate_symbol_url = '/' ~ candidate_symbol %}
+                                    {% else %}
+                                        {% set candidate_symbol_url = url_for('static', filename='uploads/symbols/' ~ candidate_symbol) %}
+                                    {% endif %}
+                                    <img class="candidate-symbol" src="{{ candidate_symbol_url }}" alt="{{ candidate['party'] }} election symbol" onerror="this.style.display='none'; this.parentElement.textContent='🗳️';">
+                                {% else %}
+                                    <span class="symbol-fallback">{{ candidate_symbol or '🗳️' }}</span>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <div class="candidate-name">{{ candidate.name }}</div>
+                                <div class="party">🏛️ {{ candidate.party }}</div>
+                            </div>
+                        </div>
+
+
+                        <!-- VOTE COUNT -->
+
+                        <div class="votes">
+
+                            {{ candidate.votes }}
+
+                            {% if candidate.votes == 1 %}
+                                Vote
+                            {% else %}
+                                Votes
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- VOTE BAR -->
+
+                    <div class="bar-container">
+
+                        <div
+                            class="bar"
+                            style="width: {{ percentage }}%;">
+                        </div>
+
+                    </div>
+
+
+                    <!-- PERCENTAGE -->
+
+                    <div class="percentage">
+
+                        {{ "%.1f"|format(percentage) }}% of all votes
+
+                    </div>
+
+
+                </div>
+
+
+            {% endfor %}
+
+
+        {% else %}
+
+
+            <!-- NO RESULTS -->
+
+            <div class="no-results">
+
+                <h3>
+                    📭 No Results Available
+                </h3>
+
+                <p>
+                    No voting data is available yet.
+                </p>
+
+            </div>
+
+
+        {% endif %}
+
+    </div>
+
+
+    {% if voting_state == "active" and election %}
+    <p style="text-align:center;color:#e5e7eb;margin:18px 0 0;">Live results refresh automatically every 10 seconds while voting is active.</p>
+    <script>
+        window.setTimeout(function () { window.location.reload(); }, 10000);
+    </script>
+    {% endif %}
+
+    <!-- =========================
+         BUTTONS
+    ========================= -->
+
+    <div class="buttons">
+
+
+        <a
+            href="{{ url_for('dashboard') }}"
+            class="btn dashboard">
+
+            🏠 Dashboard
+
+        </a>
+
+
+        <a
+            href="{{ url_for('logout') }}"
+            class="btn logout">
+
+            🚪 Logout
+
+        </a>
+
+
+    </div>
+
+
+</div>
+
+
+</body>
+
+</html>
+

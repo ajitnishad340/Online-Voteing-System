@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Manage Election</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f4f7fb;
+            color: #1f2937;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #111827, #1d4ed8);
+            color: white;
+            padding: 22px 18px;
+        }
+
+        .header-inner {
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        .back {
+            display: inline-block;
+            color: white;
+            text-decoration: none;
+            margin-bottom: 15px;
+            opacity: 0.9;
+        }
+
+        .back:hover {
+            opacity: 1;
+        }
+
+        .header h1 {
+            font-size: 30px;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            opacity: 0.9;
+        }
+
+        .container {
+            width: 94%;
+            max-width: 1200px;
+            margin: 25px auto;
+        }
+
+        .flash {
+            padding: 13px 16px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .flash.success {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .flash.danger {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .flash.warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .flash.info {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 22px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.07);
+            margin-bottom: 20px;
+        }
+
+        .card.full {
+            grid-column: 1 / -1;
+        }
+
+        .card h2 {
+            font-size: 21px;
+            margin-bottom: 18px;
+            color: #111827;
+        }
+
+        .card h3 {
+            margin-bottom: 12px;
+        }
+
+        .details {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .detail {
+            background: #f8fafc;
+            padding: 14px;
+            border-radius: 10px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .detail strong {
+            display: block;
+            font-size: 13px;
+            color: #6b7280;
+            margin-bottom: 5px;
+        }
+
+        .detail span {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 7px 12px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .status.active {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status.ended {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .status.not_started,
+        .status.draft {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status.archived {
+            background: #e5e7eb;
+            color: #374151;
+        }
+
+        form {
+            width: 100%;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 7px;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 11px 13px;
+            border: 1px solid #d1d5db;
+            border-radius: 9px;
+            font-size: 15px;
+            outline: none;
+            background: white;
+        }
+
+        input:focus,
+        select:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .btn {
+            border: none;
+            border-radius: 9px;
+            padding: 11px 17px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin: 3px;
+        }
+
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+        }
+
+        .btn-success {
+            background: #16a34a;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #dc2626;
+            color: white;
+        }
+
+        .btn-warning {
+            background: #d97706;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #475569;
+            color: white;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        .candidate-list {
+            display: grid;
+            gap: 12px;
+        }
+
+        .candidate {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            padding: 15px;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            background: #f8fafc;
+        }
+
+        .candidate-info {
+            flex: 1;
+        }
+
+        .candidate-name {
+            font-size: 17px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .candidate-party {
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .symbol {
+            font-size: 28px;
+            margin-right: 12px;
+        }
+
+        .candidate-left {
+            display: flex;
+            align-items: center;
+            flex: 1;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 25px;
+            color: #64748b;
+            background: #f8fafc;
+            border-radius: 10px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 15px;
+        }
+
+        .stat {
+            padding: 20px;
+            border-radius: 12px;
+            background: #f8fafc;
+            text-align: center;
+            border: 1px solid #e5e7eb;
+        }
+
+        .stat-number {
+            display: block;
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .danger-zone {
+            border: 1px solid #fecaca;
+            background: #fff7f7;
+        }
+
+        .danger-zone h2 {
+            color: #991b1b;
+        }
+
+        .small-text {
+            font-size: 13px;
+            color: #64748b;
+            margin-top: 6px;
+        }
+
+        .btn:disabled {
+            opacity: 0.65;
+            cursor: not-allowed;
+        }
+
+        @media (max-width: 800px) {
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .card.full {
+                grid-column: auto;
+            }
+
+            .details {
+                grid-template-columns: 1fr;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .candidate {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .candidate .btn {
+                width: 100%;
+            }
+
+            .actions {
+                flex-direction: column;
+            }
+
+            .actions .btn {
+                width: 100%;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="header">
+    <div class="header-inner">
+
+        <a href="{{ url_for('admin_dashboard') }}" class="back">
+            ← Back to Admin Dashboard
+        </a>
+
+        <h1>
+            🗳️ {{ election['name'] }}
+        </h1>
+<a href="{{ url_for('admin_election_details', election_id=election['id']) }}" class="btn btn-primary" style="display:inline-block;margin:12px 0">👁️ Back to Election Details</a>
+
+
+        <p>
+            Manage election, candidates, schedule and results
+        </p>
+
+    </div>
+</div>
+
+
+<div class="container">
+
+    <!-- FLASH MESSAGES -->
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+
+        {% if messages %}
+
+            {% for category, message in messages %}
+
+                <div class="flash {{ category }}">
+                    {{ message }}
+                </div>
+
+            {% endfor %}
+
+        {% endif %}
+
+    {% endwith %}
+
+
+    <!-- ELECTION INFORMATION -->
+
+    <div class="card">
+
+        <h2>📋 Election Information</h2>
+
+        <div class="details">
+
+            <div class="detail">
+
+                <strong>Election Name</strong>
+
+                <span>
+                    {{ election['name'] }}
+                </span>
+
+            </div>
+
+
+            <div class="detail">
+
+                <strong>Election Type</strong>
+
+                <span>
+                    {{ election['election_type'] or 'General' }}
+                </span>
+
+            </div>
+
+
+            <div class="detail">
+
+                <strong>Scope</strong>
+
+                <span>
+
+                    {% if election['scope'] == 'all_india' %}
+
+                        🇮🇳 All India
+
+                    {% elif election['scope'] == 'state' %}
+
+                        🏛️ {{ election['state'] }}
+
+                    {% elif election['scope'] == 'district' %}
+
+                        📍 {{ election['district'] }},
+                        {{ election['state'] }}
+
+                    {% else %}
+
+                        {{ election['scope'] or 'All India' }}
+
+                    {% endif %}
+
+                </span>
+
+            </div>
+
+
+            <div class="detail">
+
+                <strong>Status</strong>
+
+                <span>
+
+                    {% set current_status = election_status %}
+
+                    <span class="status {{ current_status }}">
+
+                        {% if current_status == 'active' %}
+
+                            🟢 ACTIVE
+
+                        {% elif current_status == 'ended' %}
+
+                            🔴 ENDED
+
+                        {% elif current_status == 'not_started' %}
+
+                            🟡 NOT STARTED
+
+                        {% elif current_status == 'archived' %}
+
+                            ⚫ ARCHIVED
+
+                        {% else %}
+
+                            ⚪ {{ current_status|upper }}
+
+                        {% endif %}
+
+                    </span>
+
+                </span>
+
+            </div>
+
+
+            <div class="detail">
+
+                <strong>Voting Start</strong>
+
+                <span>
+                    {{ election['start_datetime'] or 'Not scheduled' }}
+                </span>
+
+            </div>
+
+
+            <div class="detail">
+
+                <strong>Duration</strong>
+
+                <span>
+
+                    {% if election['duration_seconds'] %}
+
+                        {% set duration = election['duration_seconds']|int %}
+
+                        {% if duration >= 86400 %}
+
+                            {{ (duration // 86400) }} day(s)
+
+                        {% elif duration >= 3600 %}
+
+                            {{ (duration // 3600) }} hour(s)
+
+                        {% elif duration >= 60 %}
+
+                            {{ (duration // 60) }} minute(s)
+
+                        {% else %}
+
+                            {{ duration }} second(s)
+
+                        {% endif %}
+
+                    {% else %}
+
+                        Not set
+
+                    {% endif %}
+
+                </span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- STATISTICS -->
+
+    <div class="card">
+
+        <h2>📊 Election Statistics</h2>
+
+        <div class="stats">
+
+            <div class="stat">
+
+                <span class="stat-number">
+                    {{ candidates|length }}
+                </span>
+
+                <span class="stat-label">
+                    Candidates
+                </span>
+
+            </div>
+
+
+            <div class="stat">
+
+                <span class="stat-number">
+                    {{ votes|length }}
+                </span>
+
+                <span class="stat-label">
+                    Recorded Votes
+                </span>
+
+            </div>
+
+
+            <div class="stat">
+
+                <span class="stat-number">
+
+                    {% if candidates %}
+
+                        {{ candidates|sum(attribute='votes') }}
+
+                    {% else %}
+
+                        0
+
+                    {% endif %}
+
+                </span>
+
+                <span class="stat-label">
+                    Total Votes
+                </span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="grid">
+
+
+        <!-- SCHEDULE -->
+
+        <div class="card">
+
+            <h2>⏰ Voting Schedule</h2>
+
+            <form
+                method="POST"
+                action="{{ url_for(
+                    'admin_update_election_schedule',
+                    election_id=election['id']
+                ) }}"
+            >
+
+                <div class="form-group">
+
+                    <label for="start_datetime">
+                        📅 Voting Start
+                    </label>
+
+                    <input
+                        type="datetime-local"
+                        id="start_datetime"
+                        name="start_datetime"
+                        value="{% if election['start_datetime'] %}{{ election['start_datetime'][:16] }}{% endif %}"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="duration">
+                        ⏱️ Duration
+                    </label>
+
+                    <input
+                        type="number"
+                        id="duration"
+                        name="duration"
+                        min="1"
+                        value="{% if election['duration_seconds'] %}{{ (election['duration_seconds']|int / 60)|int }}{% else %}5{% endif %}"
+                        required
+                    >
+
+                    <div class="small-text">
+                        Duration in minutes
+                    </div>
+
+                </div>
+
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                >
+                    💾 Save Election Schedule
+                </button>
+
+            </form>
+
+        </div>
+
+
+        <!-- ELECTION ACTIONS -->
+
+        <div class="card">
+
+            <h2>⚙️ Election Actions</h2>
+
+            <div class="actions">
+
+                <a
+                    href="{{ url_for(
+                        'admin_election_results',
+                        election_id=election['id']
+                    ) }}"
+                    class="btn btn-success"
+                >
+                    📊 View Results
+                </a>
+
+
+                <a
+                    href="{{ url_for(
+                        'admin_election_blockchain',
+                        election_id=election['id']
+                    ) }}"
+                    class="btn btn-secondary"
+                >
+                    ⛓️ Blockchain
+                </a>
+
+
+                <a
+                    href="{{ url_for(
+                        'admin_election_voters',
+                        election_id=election['id']
+                    ) }}"
+                    class="btn btn-primary"
+                >
+                    👥 Voters
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <!-- ADD CANDIDATE -->
+
+        <div class="card">
+
+            <h2>➕ Add Candidate</h2>
+
+            <form
+                method="POST"
+                action="{{ url_for(
+                    'admin_add_election_candidate',
+                    election_id=election['id']
+                ) }}"
+            >
+
+                <div class="form-group">
+
+                    <label for="candidate_name">
+                        Candidate Name
+                    </label>
+
+                    <input
+                        type="text"
+                        id="candidate_name"
+                        name="name"
+                        placeholder="Enter candidate name"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="party">
+                        Party
+                    </label>
+
+                    <input
+                        type="text"
+                        id="party"
+                        name="party"
+                        placeholder="Enter party name"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="party_symbol">
+                        Party Symbol
+                    </label>
+
+                    <input
+                        type="text"
+                        id="party_symbol"
+                        name="party_symbol"
+                        placeholder="Example: 🪷"
+                        required
+                    >
+
+                </div>
+
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                >
+                    ➕ Add Candidate
+                </button>
+
+            </form>
+
+        </div>
+
+
+        <!-- CANDIDATES -->
+
+        <div class="card">
+
+            <h2>👤 Candidates</h2>
+
+            {% if candidates %}
+
+                <div class="candidate-list">
+
+                    {% for candidate in candidates %}
+
+                        <div class="candidate">
+
+                            <div class="candidate-left">
+
+                                <div class="symbol">
+                                    {{ candidate['party_symbol'] or '🗳️' }}
+                                </div>
+
+
+                                <div class="candidate-info">
+
+                                    <div class="candidate-name">
+                                        {{ candidate['name'] }}
+                                    </div>
+
+                                    <div class="candidate-party">
+
+                                        {{ candidate['party'] }}
+
+                                        •
+                                        
+                                        {{ candidate['votes'] }} vote(s)
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            {% set candidate_votes =
+                                candidate['votes']|int
+                            %}
+
+
+                            {% if candidate_votes == 0 %}
+
+                                <!-- DELETE ELECTION CANDIDATE -->
+
+                                <form
+                                    method="POST"
+                                    action="{{ url_for(
+                                        'admin_delete_election_candidate',
+                                        election_id=election['id'],
+                                        candidate_id=candidate['id']
+                                    ) }}"
+                                    onsubmit="return confirm(
+                                        'Are you sure you want to delete this candidate?'
+                                    );"
+                                >
+
+                                    <button
+                                        type="submit"
+                                        class="btn btn-danger"
+                                    >
+                                        🗑️ Delete
+                                    </button>
+
+                                </form>
+
+                            {% else %}
+
+                                <button
+                                    type="button"
+                                    class="btn btn-secondary"
+                                    disabled
+                                >
+                                    🔒 Votes Recorded
+                                </button>
+
+                            {% endif %}
+
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+            {% else %}
+
+                <div class="empty">
+                    No candidates added yet.
+                </div>
+
+            {% endif %}
+
+        </div>
+
+
+    </div>
+
+
+    <!-- RESULTS PREVIEW -->
+
+    <div class="card full">
+
+        <h2>🏆 Results Preview</h2>
+
+        {% if candidates %}
+
+            <div class="candidate-list">
+
+                {% for candidate in candidates|sort(
+                    attribute='votes',
+                    reverse=true
+                ) %}
+
+                    <div class="candidate">
+
+                        <div class="candidate-left">
+
+                            <div class="symbol">
+                                {{ candidate['party_symbol'] or '🗳️' }}
+                            </div>
+
+
+                            <div class="candidate-info">
+
+                                <div class="candidate-name">
+
+                                    {{ candidate['name'] }}
+
+                                    {% if loop.first and
+                                        candidate['votes']|int > 0 %}
+
+                                        🏆
+
+                                    {% endif %}
+
+                                </div>
+
+
+                                <div class="candidate-party">
+
+                                    {{ candidate['party'] }}
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <strong>
+                            {{ candidate['votes'] }} vote(s)
+                        </strong>
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        {% else %}
+
+            <div class="empty">
+
+                Results will appear after candidates and votes
+                are available.
+
+            </div>
+
+        {% endif %}
+
+    </div>
+
+
+    <!-- ELECTION START / MANAGEMENT -->
+
+    <div class="card danger-zone full">
+        <h2>🚦 Election Management</h2>
+        <p class="small-text" style="margin-bottom: 15px;">
+            Review the election details and candidates first. Once you confirm the schedule, editing will be locked.
+            Voting will begin automatically at the configured date and time and end when the duration expires.
+        </p>
+        <div class="actions">
+            {% if current_status not in ['active', 'ended', 'archived'] and election['status'] not in ['scheduled', 'active', 'ended', 'archived'] %}
+                <form method="POST"
+                      action="{{ url_for('admin_start_election', election_id=election['id']) }}"
+                      onsubmit="return confirm('Confirm this election schedule? After confirmation, candidates and settings cannot be changed. Voting will start at the scheduled date and time.');">
+                    <button type="submit" class="btn btn-success">🚀 Confirm &amp; Start Election at Scheduled Time</button>
+                </form>
+            {% else %}
+                <button type="button" class="btn btn-secondary" disabled>🔒 Election Confirmed — Editing Locked</button>
+            {% endif %}
+
+            {% if current_status not in ['active', 'ended', 'archived'] and election['status'] not in ['scheduled', 'active', 'ended', 'archived'] %}
+                <form method="POST"
+                      action="{{ url_for('admin_delete_election', election_id=election['id']) }}"
+                      onsubmit="return confirm('Delete this unconfirmed election and its election-specific data? Registered users will remain.');">
+                    <button type="submit" class="btn btn-danger">🗑️ Delete Election</button>
+                </form>
+            {% else %}
+                <button type="button" class="btn btn-secondary" disabled>🔒 Confirmed elections cannot be deleted</button>
+            {% endif %}
+        </div>
+    </div>
+
+</div>
+
+
+<script>
+
+    // --------------------------------------------------------
+    // Prevent accidental double submission
+    // --------------------------------------------------------
+
+    document.querySelectorAll("form").forEach(function(form) {
+
+        form.addEventListener("submit", function() {
+
+            const submitButtons =
+                form.querySelectorAll(
+                    'button[type="submit"]'
+                );
+
+            submitButtons.forEach(function(button) {
+
+                setTimeout(function() {
+
+                    button.disabled = true;
+
+                }, 50);
+
+            });
+
+        });
+
+    });
+
+</script>
+
+
+</body>
+</html>

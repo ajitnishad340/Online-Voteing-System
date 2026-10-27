@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Blockchain Verification</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background:
+                radial-gradient(circle at top left, rgba(37,99,235,0.20), transparent 35%),
+                linear-gradient(135deg, #020617, #0f172a, #1e293b);
+            color: #ffffff;
+            min-height: 100vh;
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 1450px;
+            margin: auto;
+        }
+
+        /* INDIA BRAND */
+        .india-brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 18px;
+            border-radius: 30px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            font-size: 13px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            color: #f8fafc;
+            margin-bottom: 15px;
+        }
+
+        .india-flag {
+            font-size: 24px;
+        }
+
+        /* HEADER */
+        .header {
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 22px;
+            padding: 28px;
+            margin-bottom: 22px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.30);
+            backdrop-filter: blur(12px);
+        }
+
+        .header h1 {
+            font-size: 34px;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: #cbd5e1;
+            font-size: 15px;
+        }
+
+        .national-text {
+            margin-top: 12px;
+            color: #93c5fd;
+            font-weight: bold;
+        }
+
+
+        /* ELECTION SELECTOR */
+        .election-selector {
+            margin-top: 20px;
+            padding: 16px;
+            border-radius: 13px;
+            background: rgba(2,6,23,0.35);
+            border: 1px solid rgba(148,163,184,0.22);
+        }
+        .election-selector label {
+            display: block;
+            color: #bfdbfe;
+            font-weight: bold;
+            margin-bottom: 9px;
+        }
+        .selector-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .selector-row select {
+            flex: 1;
+            min-width: 0;
+            padding: 12px;
+            border-radius: 9px;
+            border: 1px solid #475569;
+            background: #0f172a;
+            color: #f8fafc;
+            font-size: 14px;
+        }
+        .selector-button {
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .election-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px 18px;
+            align-items: center;
+            margin-top: 14px;
+            color: #cbd5e1;
+            font-size: 14px;
+        }
+        .archived-label {
+            color: #fcd34d;
+            font-weight: bold;
+        }
+        @media (max-width: 800px) {
+            .selector-row { flex-direction: column; align-items: stretch; }
+            .selector-row select, .selector-button { width: 100%; }
+        }
+
+        /* STATUS */
+        .status-card {
+            margin-top: 22px;
+            padding: 20px;
+            border-radius: 15px;
+            background: rgba(34,197,94,0.13);
+            border: 1px solid rgba(34,197,94,0.40);
+            box-shadow: inset 0 0 25px rgba(34,197,94,0.04);
+        }
+
+        .status-card.invalid {
+            background: rgba(239,68,68,0.13);
+            border-color: rgba(239,68,68,0.45);
+        }
+
+        .status-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 7px;
+        }
+
+        .valid {
+            color: #4ade80;
+        }
+
+        .invalid-text {
+            color: #f87171;
+        }
+
+        .status-message {
+            color: #dbeafe;
+            line-height: 1.6;
+        }
+
+        /* SECURITY BADGES */
+        .security-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 22px;
+        }
+
+        .security-card {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.10);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .security-icon {
+            font-size: 30px;
+            margin-bottom: 8px;
+        }
+
+        .security-card h3 {
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        .security-card p {
+            color: #94a3b8;
+            font-size: 13px;
+        }
+
+        /* ACTIONS */
+        .actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 22px;
+        }
+
+        .btn {
+            text-decoration: none;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-weight: bold;
+            display: inline-block;
+            transition: 0.2s;
+            border: 1px solid transparent;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+        }
+
+        .btn-blue {
+            background: #2563eb;
+            color: white;
+        }
+
+        .btn-green {
+            background: #16a34a;
+            color: white;
+        }
+
+        .btn-red {
+            background: #dc2626;
+            color: white;
+        }
+
+        /* TABLE */
+        .table-card {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.11);
+            border-radius: 20px;
+            padding: 22px;
+            overflow-x: auto;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.20);
+        }
+
+        .table-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 18px;
+        }
+
+        .table-heading h2 {
+            font-size: 22px;
+        }
+
+        .block-count {
+            padding: 7px 13px;
+            border-radius: 20px;
+            background: rgba(37,99,235,0.18);
+            border: 1px solid rgba(37,99,235,0.35);
+            color: #93c5fd;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1100px;
+        }
+
+        th {
+            background: #334155;
+            color: #ffffff;
+            padding: 14px;
+            text-align: left;
+            font-size: 13px;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 15px 14px;
+            border-bottom: 1px solid rgba(255,255,255,0.09);
+            color: #e2e8f0;
+            vertical-align: top;
+        }
+
+        tr:hover td {
+            background: rgba(255,255,255,0.04);
+        }
+
+        /* BLOCK ID */
+        .block-id {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 55px;
+            padding: 8px 10px;
+            border-radius: 9px;
+            background: rgba(250,204,21,0.12);
+            border: 1px solid rgba(250,204,21,0.25);
+            color: #facc15;
+            font-weight: bold;
+            font-size: 15px;
+        }
+
+        /* HASH */
+        .hash-box {
+            background: rgba(2,6,23,0.55);
+            border: 1px solid rgba(148,163,184,0.15);
+            border-radius: 8px;
+            padding: 9px;
+        }
+
+        .hash {
+            font-family: monospace;
+            font-size: 11px;
+            word-break: break-all;
+            max-width: 260px;
+            color: #93c5fd;
+            line-height: 1.5;
+        }
+
+        .hash-label {
+            display: block;
+            font-size: 10px;
+            color: #64748b;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.7px;
+        }
+
+        /* CANDIDATE */
+        .candidate {
+            font-weight: bold;
+            color: #86efac;
+        }
+
+        .candidate-icon {
+            margin-right: 5px;
+        }
+
+        /* TIMESTAMP */
+        .timestamp {
+            color: #cbd5e1;
+            font-size: 13px;
+            white-space: nowrap;
+        }
+
+        /* EMPTY */
+        .empty {
+            text-align: center;
+            padding: 60px 20px;
+            color: #94a3b8;
+        }
+
+        .empty-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+
+        .empty h3 {
+            color: #e2e8f0;
+            margin-bottom: 8px;
+        }
+
+        /* INFO */
+        .info {
+            margin-top: 22px;
+            padding: 22px;
+            border-radius: 16px;
+            background: rgba(59,130,246,0.10);
+            border: 1px solid rgba(59,130,246,0.28);
+            color: #bfdbfe;
+            line-height: 1.6;
+        }
+
+        .info-title {
+            color: #93c5fd;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .info p {
+            margin-top: 8px;
+        }
+
+        /* FOOTER */
+        .footer {
+            text-align: center;
+            margin-top: 25px;
+            padding: 18px;
+            color: #64748b;
+            font-size: 13px;
+        }
+
+        /* MOBILE */
+        @media (max-width: 800px) {
+
+            body {
+                padding: 15px;
+            }
+
+            .header {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 26px;
+            }
+
+            .security-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .table-card {
+                padding: 13px;
+            }
+
+            .table-heading {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .actions {
+                flex-direction: column;
+            }
+
+            .btn {
+                text-align: center;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- INDIA BRAND -->
+    <div style="text-align:center;">
+        <div class="india-brand">
+            <span class="india-flag">🇮🇳</span>
+            <span>GOVERNMENT OF INDIA</span>
+        </div>
+    </div>
+
+
+    <!-- HEADER -->
+    <div class="header">
+
+        <h1>🔗 Blockchain Voting Ledger</h1>
+
+        <p>
+            Secure, transparent and tamper-detection ledger
+            for recorded votes.
+        </p>
+
+        <div class="national-text">
+            🇮🇳 Secure • Transparent • Cryptographically Protected
+        </div>
+
+        <!-- ELECTION SELECTOR: includes previous and archived elections -->
+        {% if elections %}
+        <form class="election-selector" method="GET" action="{{ url_for('blockchain') }}">
+            <label for="election_id">Select Election / Previous Election</label>
+            <div class="selector-row">
+                <select id="election_id" name="election_id" required>
+                    {% for item in elections %}
+                    <option value="{{ item.id }}"
+                        {% if selected_election_id is defined and selected_election_id == item.id %}selected
+                        {% elif selected_election_id is not defined and election and election.id == item.id %}selected
+                        {% endif %}>
+                        {{ item.name }} — {{ item.status|title }}{% if item.archived %} — Archived{% endif %}
+                    </option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="btn btn-blue selector-button">View Election</button>
+            </div>
+        </form>
+        {% endif %}
+
+        {% if election %}
+        <div class="election-meta">
+            <strong>Selected Election:</strong> {{ election.name }}
+            <span>Election ID: {{ election.id }}</span>
+            <span>Status: {{ election.status|title }}</span>
+            {% if election.archived %}<span class="archived-label">Archived / Previous Election</span>{% endif %}
+        </div>
+        {% endif %}
+
+
+
+        {% set is_valid = blockchain_valid if blockchain_valid is defined else (valid if valid is defined else true) %}
+        {% set status_message = blockchain_message if blockchain_message is defined else (message if message is defined else "No blockchain verification message available.") %}
+        {% if is_valid %}
+
+            <div class="status-card">
+
+                <div class="status-title valid">
+                    ✅ Blockchain Status: VALID
+                </div>
+
+                <div class="status-message">
+                    {{ status_message }}
+                </div>
+
+            </div>
+
+        {% else %}
+
+            <div class="status-card invalid">
+
+                <div class="status-title invalid-text">
+                    ❌ Blockchain Status: INVALID
+                </div>
+
+                <div class="status-message">
+                    {{ status_message }}
+                </div>
+
+            </div>
+
+        {% endif %}
+
+    </div>
+
+
+    <!-- SECURITY FEATURES -->
+    <div class="security-grid">
+
+        <div class="security-card">
+
+            <div class="security-icon">
+                🔐
+            </div>
+
+            <h3>SHA-256 Hashing</h3>
+
+            <p>
+                Each block is protected using
+                cryptographic hashing.
+            </p>
+
+        </div>
+
+
+        <div class="security-card">
+
+            <div class="security-icon">
+                🔗
+            </div>
+
+            <h3>Hash Chain</h3>
+
+            <p>
+                Every block is connected with
+                the previous block hash.
+            </p>
+
+        </div>
+
+
+        <div class="security-card">
+
+            <div class="security-icon">
+                🛡️
+            </div>
+
+            <h3>Tamper Detection</h3>
+
+            <p>
+                Unauthorized block modification
+                can be detected.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- ACTION BUTTONS -->
+    <div class="actions">
+
+        <a href="{{ url_for('admin_dashboard') }}"
+           class="btn btn-blue">
+            🏠 Admin Dashboard
+        </a>
+
+        <a href="{{ url_for('blockchain', election_id=election.id) if election else url_for('blockchain') }}"
+           class="btn btn-green">
+            🔍 Verify Blockchain Again
+        </a>
+
+        <a href="{{ url_for('admin_logout') }}"
+           class="btn btn-red">
+            🚪 Logout
+        </a>
+
+    </div>
+
+
+    <!-- BLOCKCHAIN TABLE -->
+    <div class="table-card">
+
+        <div class="table-heading">
+
+            <h2>
+                📦 Blockchain Blocks
+            </h2>
+
+            {% if blocks %}
+                <div class="block-count">
+                    🔗 {{ blocks|length }} Block{% if blocks|length != 1 %}s{% endif %}
+                </div>
+            {% endif %}
+
+        </div>
+
+
+        {% if blocks %}
+
+        <table>
+
+            <thead>
+
+                <tr>
+                    <th>Block ID</th>
+                    <th>Voter Hash</th>
+                    <th>Candidate</th>
+                    <th>Timestamp</th>
+                    <th>Previous Hash</th>
+                    <th>Block Hash</th>
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+            {% for block in blocks %}
+
+                <tr>
+
+                    <!-- BLOCK ID -->
+                    <td>
+                        <span class="block-id">
+                            #{{ block.id }}
+                        </span>
+                    </td>
+
+
+                    <!-- VOTER HASH -->
+                    <td>
+
+                        <div class="hash-box">
+
+                            <span class="hash-label">
+                                SHA-256
+                            </span>
+
+                            <div class="hash">
+                                {{ block.voter_hash }}
+                            </div>
+
+                        </div>
+
+                    </td>
+
+
+                    <!-- CANDIDATE -->
+                    <td>
+
+                        <span class="candidate">
+                            🗳️ {{ block.candidate_name }}
+                        </span>
+
+                    </td>
+
+
+                    <!-- TIMESTAMP -->
+                    <td>
+
+                        <span class="timestamp">
+                            ⏱️ {{ block.timestamp }}
+                        </span>
+
+                    </td>
+
+
+                    <!-- PREVIOUS HASH -->
+                    <td>
+
+                        <div class="hash-box">
+
+                            <span class="hash-label">
+                                Previous Block
+                            </span>
+
+                            <div class="hash">
+                                {{ block.previous_hash }}
+                            </div>
+
+                        </div>
+
+                    </td>
+
+
+                    <!-- BLOCK HASH -->
+                    <td>
+
+                        <div class="hash-box">
+
+                            <span class="hash-label">
+                                Current Block Hash
+                            </span>
+
+                            <div class="hash">
+                                {{ block.block_hash }}
+                            </div>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+            {% endfor %}
+
+            </tbody>
+
+        </table>
+
+
+        {% else %}
+
+            <div class="empty">
+
+                <div class="empty-icon">
+                    📭
+                </div>
+
+                <h3>
+                    No Blockchain Blocks Found
+                </h3>
+
+                <p>
+                    Blockchain records will appear here after
+                    a voter successfully casts a vote.
+                </p>
+
+            </div>
+
+        {% endif %}
+
+    </div>
+
+
+    <!-- HOW BLOCKCHAIN WORKS -->
+    <div class="info">
+
+        <div class="info-title">
+            🔐 How Blockchain Vote Protection Works
+        </div>
+
+        <p>
+            Every successfully submitted vote creates a blockchain
+            block containing a hashed voter identity, selected
+            candidate, timestamp, previous block hash and its own
+            SHA-256 block hash.
+        </p>
+
+        <p>
+            Each block is linked to the previous block through its
+            hash. If information inside an existing block is modified,
+            its calculated hash changes and the verification system
+            can detect the inconsistency.
+        </p>
+
+        <p>
+            🛡️ This provides an additional integrity layer for the
+            voting records stored by the application.
+        </p>
+
+    </div>
+
+
+    <!-- FOOTER -->
+    <div class="footer">
+        🇮🇳 Online Voting System • Blockchain Protected Voting Ledger
+    </div>
+
+</div>
+
+</body>
+</html>
+

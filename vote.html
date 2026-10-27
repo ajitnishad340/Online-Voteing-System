@@ -1,0 +1,931 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Cast Your Vote 🇮🇳</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: linear-gradient(135deg, #f8fafc, #e0f2fe);
+            color: #172554;
+            min-height: 100vh;
+        }
+
+        .vote-page {
+            max-width: 1050px;
+            margin: 0 auto;
+            padding: 35px 20px 50px;
+        }
+
+        /* =========================
+           HEADER
+        ========================= */
+
+        .vote-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .vote-header .icon {
+            font-size: 55px;
+        }
+
+        .vote-header h1 {
+            color: #172554;
+            font-size: 32px;
+            margin: 8px 0;
+        }
+
+        .vote-header p {
+            color: #64748b;
+            font-size: 14px;
+            margin: 0;
+        }
+
+
+        /* =========================
+           ELECTION NAME
+        ========================= */
+
+        .election-box {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 25px;
+            border: 2px solid #dbeafe;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+        }
+
+        .election-icon {
+            font-size: 32px;
+            margin-bottom: 6px;
+        }
+
+        .election-box h2 {
+            margin: 0;
+            color: #172554;
+            font-size: 27px;
+            font-weight: 800;
+        }
+
+        .election-box p {
+            margin: 7px 0 0;
+            color: #64748b;
+            font-size: 13px;
+        }
+
+
+        /* =========================
+           TIMER
+        ========================= */
+
+        .timer-box {
+            background: linear-gradient(135deg, #172554, #1e3a8a);
+            color: white;
+            border-radius: 16px;
+            padding: 22px;
+            text-align: center;
+            margin-bottom: 25px;
+            box-shadow: 0 8px 25px rgba(15, 23, 42, 0.18);
+        }
+
+        .timer-label {
+            font-size: 13px;
+            color: #dbeafe;
+            margin-bottom: 7px;
+        }
+
+        .timer {
+            font-size: 34px;
+            font-weight: 900;
+            letter-spacing: 3px;
+        }
+
+
+
+        .results-link {
+            margin-top: 14px;
+            padding: 11px 18px;
+            border-radius: 10px;
+            background: #ffffff;
+            color: #172554;
+            text-decoration: none;
+            font-weight: 700;
+            align-items: center;
+            justify-content: center;
+        }
+        .confirm-btn:disabled { opacity: .55; cursor: not-allowed; }
+
+        /* =========================
+           LOCATION
+        ========================= */
+
+        .location-box {
+            padding: 16px 20px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            background: #ecfdf5;
+            border: 1px solid #bbf7d0;
+            color: #166534;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+
+        /* =========================
+           CANDIDATE HEADING
+        ========================= */
+
+        .candidate-heading {
+            background: white;
+            border-radius: 14px;
+            padding: 16px;
+            text-align: center;
+            margin-bottom: 18px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .candidate-heading h2 {
+            margin: 0;
+            color: #172554;
+            font-size: 22px;
+        }
+
+        .candidate-heading p {
+            margin: 6px 0 0;
+            color: #64748b;
+            font-size: 13px;
+        }
+
+
+        /* =========================
+           CANDIDATES
+        ========================= */
+
+        .candidates {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 18px;
+        }
+
+        .candidate-card {
+            position: relative;
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 16px;
+            padding: 24px;
+            cursor: pointer;
+            transition: 0.25s;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .candidate-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.10);
+            border-color: #94a3b8;
+        }
+
+        .candidate-card input {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .candidate-card.selected {
+            border-color: #138808;
+            background: #f0fdf4;
+            box-shadow: 0 0 0 3px rgba(19, 136, 8, 0.10);
+        }
+
+        .candidate-content {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+
+        .candidate-symbol {
+            width: 65px;
+            height: 65px;
+            border-radius: 50%;
+            background: #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            flex-shrink: 0;
+        }
+
+        .candidate-info h3 {
+            color: #172554;
+            font-size: 18px;
+            margin: 0 0 6px;
+        }
+
+        .candidate-info p {
+            color: #64748b;
+            font-size: 13px;
+            margin: 0;
+        }
+
+        .selected-mark {
+            display: none;
+            position: absolute;
+            right: 15px;
+            top: 15px;
+            color: #138808;
+            font-size: 20px;
+        }
+
+        .candidate-card.selected .selected-mark {
+            display: block;
+        }
+
+
+        /* =========================
+           CONFIRM
+        ========================= */
+
+        .confirm-area {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .confirm-btn {
+            min-width: 270px;
+            padding: 15px 25px;
+            font-size: 15px;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            background: #138808;
+            color: white;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .confirm-btn:hover:not(:disabled) {
+            background: #0f6f06;
+            transform: translateY(-2px);
+        }
+
+        .confirm-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .warning {
+            margin-top: 15px;
+            color: #92400e;
+            font-size: 12px;
+        }
+
+
+        /* =========================
+           NO CANDIDATES
+        ========================= */
+
+        .no-candidates {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            color: #64748b;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.06);
+        }
+
+
+        /* =========================
+           MOBILE
+        ========================= */
+
+        @media (max-width: 700px) {
+
+            .vote-page {
+                padding: 25px 15px;
+            }
+
+            .candidates {
+                grid-template-columns: 1fr;
+            }
+
+            .vote-header h1 {
+                font-size: 27px;
+            }
+
+            .timer {
+                font-size: 28px;
+            }
+
+            .candidate-card {
+                padding: 20px;
+            }
+
+            .election-box h2 {
+                font-size: 23px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<div class="vote-page">
+
+
+    <!-- =========================
+         HEADER
+    ========================= -->
+
+    <div class="vote-header">
+
+        <div class="icon">
+            🇮🇳
+        </div>
+
+        <h1>
+            Cast Your Vote
+        </h1>
+
+        <p>
+            Select one candidate and submit your vote.
+        </p>
+
+    </div>
+
+
+    <!-- =========================
+         ELECTION NAME
+         ADMIN ENTERED ELECTION NAME
+         WILL APPEAR HERE
+    ========================= -->
+
+    <div class="election-box">
+
+        <div class="election-icon">
+            🗳️
+        </div>
+
+        <h2>
+            {{ election['name'] }}
+        </h2>
+
+        <p>
+            Select your candidate for this election
+        </p>
+
+    </div>
+
+
+    <!-- =========================
+         TIMER
+    ========================= -->
+
+    <div class="timer-box">
+
+        <div class="timer-label">
+            ⏱️ Voting Time Remaining
+        </div>
+
+        <div class="timer" id="timer">
+            Loading...
+        </div>
+
+        <a id="viewResultsLink" href="{{ url_for('election_results', election_id=election['id']) }}" class="results-link" style="display:none;">🏆 View Results</a>
+    </div>
+
+
+    <!-- =========================
+         LOCATION
+    ========================= -->
+
+    <div class="location-box">
+
+        📍 Voting Location:
+
+        {{ user['district'] }},
+        {{ user['state'] }},
+        India
+
+    </div>
+
+
+    <!-- =========================
+         VOTING FORM
+    ========================= -->
+
+    <form
+        method="POST"
+        action="{{ url_for('submit_vote', election_id=election['id']) }}"
+        id="voteForm"
+    >
+
+
+        {% if candidates %}
+
+
+        <!-- =========================
+             CANDIDATE LIST HEADING
+        ========================= -->
+
+        <div class="candidate-heading">
+
+            <h2>
+                👥 Candidate List
+            </h2>
+
+            <p>
+                Select one candidate to cast your vote
+            </p>
+
+        </div>
+
+
+        <!-- =========================
+             CANDIDATES
+        ========================= -->
+
+        <div class="candidates">
+
+
+            {% for candidate in candidates %}
+
+
+            <label class="candidate-card">
+
+
+                <input
+                    type="radio"
+                    name="candidate_id"
+                    value="{{ candidate['id'] }}"
+                    required
+                >
+
+
+                <span class="selected-mark">
+                    ✅
+                </span>
+
+
+                <div class="candidate-content">
+
+
+                    <div class="candidate-symbol">
+                        {% set symbol = (candidate['party_symbol'] or '')|string %}
+                        {% if symbol.lower().endswith(('.png', '.jpg', '.jpeg', '.webp')) %}
+                            {% if symbol.startswith('uploads/symbols/') %}
+                                {% set symbol_url = url_for('static', filename=symbol) %}
+                            {% elif symbol.startswith('static/') %}
+                                {% set symbol_url = '/' ~ symbol %}
+                            {% else %}
+                                {% set symbol_url = url_for('static', filename='uploads/symbols/' ~ symbol) %}
+                            {% endif %}
+                            <img src="{{ symbol_url }}" alt="{{ candidate['party'] }} election symbol" style="width:100%;height:100%;object-fit:contain;border-radius:50%;padding:5px;" onerror="this.style.display='none'; this.parentElement.textContent='🗳️';">
+                        {% else %}
+                            {{ symbol or '🗳️' }}
+                        {% endif %}
+                    </div>
+
+
+                    <div class="candidate-info">
+
+                        <h3>
+                            {{ candidate['name'] }}
+                        </h3>
+
+                        <p>
+                            {{ candidate['party'] }}
+                        </p>
+
+                    </div>
+
+
+                </div>
+
+
+            </label>
+
+
+            {% endfor %}
+
+
+        </div>
+
+
+        {% else %}
+
+
+        <!-- =========================
+             NO CANDIDATES
+        ========================= -->
+
+        <div class="no-candidates">
+
+            <h2>
+                📭 No Candidates Available
+            </h2>
+
+            <p>
+                Currently there are no candidates available for voting.
+            </p>
+
+        </div>
+
+
+        {% endif %}
+
+
+        <!-- =========================
+             CONFIRM BUTTON
+        ========================= -->
+
+        {% if candidates %}
+
+
+        <div class="confirm-area">
+
+            <button
+                type="submit"
+                class="confirm-btn"
+                id="confirmBtn"
+                disabled
+            >
+                ✅ Confirm & Submit Vote
+            </button>
+
+            <div class="warning">
+                ⚠️ Once submitted, your vote cannot be changed.
+            </div>
+
+        </div>
+
+
+        {% endif %}
+
+
+    </form>
+
+
+</div>
+
+
+<script>
+
+
+/* =========================================
+   CANDIDATE SELECTION
+========================================= */
+
+
+const cards =
+    document.querySelectorAll(".candidate-card");
+
+
+const confirmBtn =
+    document.getElementById("confirmBtn");
+
+
+cards.forEach(function(card) {
+
+
+    const radio =
+        card.querySelector("input[type='radio']");
+
+
+    radio.addEventListener("change", function() {
+
+
+        cards.forEach(function(item) {
+
+            item.classList.remove("selected");
+
+        });
+
+
+        if (radio.checked) {
+
+
+            card.classList.add("selected");
+
+
+            if (confirmBtn) {
+
+                confirmBtn.disabled = false;
+
+            }
+
+
+        }
+
+
+    });
+
+
+});
+
+
+/* =========================================
+   VOTING COUNTDOWN
+========================================= */
+
+
+const timerElement =
+    document.getElementById("timer");
+
+
+function updateTimer() {
+
+
+    fetch("{{ url_for('election_status_api', election_id=election['id']) }}")
+
+
+        .then(function(response) {
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    "Status request failed"
+                );
+
+            }
+
+
+            return response.json();
+
+
+        })
+
+
+        .then(function(data) {
+
+
+            if (!timerElement) {
+
+                return;
+
+            }
+
+
+            /* NOT STARTED / SCHEDULED */
+
+            if (data.status === "not_started" || data.status === "scheduled" || data.status === "draft") {
+                timerElement.textContent = "Voting has not started";
+                if (confirmBtn) confirmBtn.disabled = true;
+                cards.forEach(function(card) {
+                    const radio = card.querySelector("input[type='radio']");
+                    if (radio) radio.disabled = true;
+                });
+            }
+
+            /* ENDED */
+
+            else if (data.status === "ended" || Number(data.remaining_seconds || 0) <= 0) {
+                timerElement.textContent = "Voting Ended";
+                if (confirmBtn) confirmBtn.disabled = true;
+                cards.forEach(function(card) {
+                    const radio = card.querySelector("input[type='radio']");
+                    if (radio) radio.disabled = true;
+                });
+                const resultLink = document.getElementById("viewResultsLink");
+                if (resultLink) resultLink.style.display = "inline-flex";
+            }
+
+
+            /* ACTIVE */
+
+            else if (data.status === "active") {
+
+
+                let seconds =
+                    Number(
+                        data.remaining_seconds || 0
+                    );
+
+
+                if (seconds < 0) {
+
+                    seconds = 0;
+
+                }
+
+
+                let hours =
+                    Math.floor(
+                        seconds / 3600
+                    );
+
+
+                let minutes =
+                    Math.floor(
+                        (seconds % 3600) / 60
+                    );
+
+
+                let secs =
+                    seconds % 60;
+
+
+                timerElement.textContent =
+
+                    String(hours).padStart(2, "0")
+                    + ":"
+                    +
+                    String(minutes).padStart(2, "0")
+                    + ":"
+                    +
+                    String(secs).padStart(2, "0");
+
+
+                /*
+                    Button remains disabled until
+                    candidate is selected.
+                */
+
+
+                const selected = document.querySelector("input[name='candidate_id']:checked");
+                cards.forEach(function(card) {
+                    const radio = card.querySelector("input[type='radio']");
+                    if (radio) radio.disabled = false;
+                });
+                if (confirmBtn) confirmBtn.disabled = !selected;
+
+
+            }
+
+
+            /* OTHER */
+
+            else {
+
+
+                timerElement.textContent =
+                    "Not Scheduled";
+
+
+                if (confirmBtn) {
+
+                    confirmBtn.disabled = true;
+
+                }
+
+
+            }
+
+
+        })
+
+
+        .catch(function(error) {
+
+
+            console.log(
+                "Voting status error:",
+                error
+            );
+
+
+            if (timerElement) {
+
+                timerElement.textContent =
+                    "Unable to load timer";
+
+            }
+
+
+        });
+
+
+}
+
+
+/* =========================================
+   START TIMER
+========================================= */
+
+
+updateTimer();
+
+
+setInterval(
+    updateTimer,
+    1000
+);
+
+
+/* =========================================
+   FINAL VOTE CONFIRMATION
+========================================= */
+
+
+const voteForm =
+    document.getElementById("voteForm");
+
+
+if (voteForm) {
+
+
+    voteForm.addEventListener(
+        "submit",
+        function(event) {
+
+
+            const selected =
+                document.querySelector(
+                    "input[name='candidate_id']:checked"
+                );
+
+
+            if (!selected) {
+
+
+                event.preventDefault();
+
+
+                alert(
+                    "Please select a candidate."
+                );
+
+
+                return;
+
+            }
+
+
+            const candidateCard =
+                selected.closest(
+                    ".candidate-card"
+                );
+
+
+            let candidateName =
+                "this candidate";
+
+
+            if (candidateCard) {
+
+
+                const nameElement =
+                    candidateCard.querySelector("h3");
+
+
+                if (nameElement) {
+
+
+                    candidateName =
+                        nameElement.textContent.trim();
+
+                }
+
+
+            }
+
+
+            const confirmVote =
+                confirm(
+
+                    "Are you sure you want to vote for "
+                    + candidateName
+                    +
+                    "?\n\nOnce submitted, your vote cannot be changed."
+
+                );
+
+
+            if (!confirmVote) {
+
+                event.preventDefault();
+
+            }
+
+
+        }
+    );
+
+}
+
+
+</script>
+
+
+</body>
+
+</html>
+

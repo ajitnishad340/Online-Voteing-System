@@ -1,0 +1,178 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Already Voted</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            background: white;
+            border-radius: 20px;
+            padding: 45px 35px;
+            text-align: center;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.25);
+        }
+
+        .icon {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 20px;
+            border-radius: 50%;
+            background: #e5f8eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 55px;
+        }
+
+        h1 {
+            color: #198754;
+            font-size: 30px;
+            margin-bottom: 15px;
+        }
+
+        .message {
+            color: #666;
+            line-height: 1.7;
+            margin-bottom: 25px;
+        }
+
+        .status-box {
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .status-box h2 {
+            color: #333;
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+
+        .status-box p {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .secure {
+            background: #f1f8ff;
+            border: 1px solid #cfe5ff;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 25px;
+            color: #1769aa;
+            font-size: 14px;
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-block;
+            text-decoration: none;
+            padding: 13px 25px;
+            border-radius: 9px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .dashboard {
+            background: #667eea;
+            color: white;
+        }
+
+        .results {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 7px 15px rgba(0,0,0,0.2);
+        }
+
+        @media (max-width: 500px) {
+            .container {
+                padding: 35px 20px;
+            }
+
+            .buttons {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+<div class="container">
+
+    <div class="icon">✅</div>
+
+    <h1>You Have Already Voted</h1>
+
+    <p class="message">
+        Hello {{ user['name'] if user else 'Voter' }}, your vote has
+        already been recorded for this election.
+    </p>
+
+    <div class="status-box">
+        <h2>🗳️ Vote Status</h2>
+        <p>
+            Your vote has been recorded successfully.
+            For security and fairness, you cannot vote again
+            in the same election.
+        </p>
+    </div>
+
+    <div class="secure">
+        🔒 <strong>One Person • One Vote</strong><br>
+        Your voting status is securely maintained by the system.
+    </div>
+
+    <div class="buttons">
+        <a href="{{ url_for('dashboard') }}" class="btn dashboard">
+            🏠 Dashboard
+        </a>
+
+        {% if election and election['id'] is defined %}
+            <a href="{{ url_for('election_results', election_id=election['id']) }}"
+               class="btn results">
+                🏆 View Results
+            </a>
+        {% endif %}
+    </div>
+
+</div>
+</body>
+</html>

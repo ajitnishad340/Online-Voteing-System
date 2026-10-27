@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Election Details - Online Voting System</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f3f6fb;color:#172033}.header{background:linear-gradient(135deg,#111827,#1e3a8a);color:white;padding:25px 5%}.header a{color:white;text-decoration:none}.wrap{max-width:1150px;margin:24px auto;padding:0 18px}.card{background:white;border-radius:14px;padding:22px;margin-bottom:20px;box-shadow:0 4px 16px #0000000d}.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}.metric{padding:17px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px}.metric small{display:block;color:#64748b;margin-bottom:8px}.metric strong{font-size:25px}.badge{display:inline-block;padding:7px 12px;border-radius:20px;font-size:12px;font-weight:bold}.active{background:#dcfce7;color:#166534}.ended{background:#fee2e2;color:#991b1b}.scheduled{background:#dbeafe;color:#1d4ed8}.pending{background:#fef3c7;color:#92400e}.winner{border:2px solid #fbbf24;background:#fffbeb}.winner h2{margin:8px 0;color:#92400e}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:13px;border-bottom:1px solid #e5e7eb}th{background:#f8fafc}.btn{display:inline-block;padding:11px 16px;background:#2563eb;color:white;text-decoration:none;border-radius:8px;font-weight:bold}.muted{color:#64748b}.lock{padding:12px;background:#fff7ed;color:#9a3412;border:1px solid #fed7aa;border-radius:9px;margin-top:12px}.symbol-image{width:56px;height:56px;object-fit:contain;display:block;margin-top:8px;background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:4px}.symbol-cell{width:42px;height:42px;object-fit:contain;display:block}.symbol-text{font-size:22px}@media(max-width:750px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:460px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="header"><a href="{{ url_for('admin_dashboard') }}">← Back to Admin Dashboard</a><h1>🗳️ {{ election['name'] }}</h1><p>Election details, candidates and final result</p></div>
+<div class="wrap">
+<div class="card" style="border-left:5px solid #2563eb"><strong>Election Details Page</strong><p class="muted">This page is connected to the election details route. Use Back to Admin Dashboard to return.</p></div>
+<div class="card"><div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center"><div><h2 style="margin:0 0 8px">Election Overview</h2><span class="muted">Election ID: #{{ election['id'] }} · Type: {{ election['election_type']|default('General', true) }}</span></div>
+{% if status == 'active' %}<span class="badge active">VOTING ACTIVE · EDITING LOCKED</span>{% elif status in ['ended','archived'] %}<span class="badge ended">ENDED · EDITING LOCKED</span>{% elif status == 'scheduled' %}<span class="badge scheduled">SCHEDULED</span>{% else %}<span class="badge pending">NOT STARTED</span>{% endif %}</div>
+<div class="grid" style="margin-top:20px"><div class="metric"><small>Registered Candidates</small><strong>{{ candidates|length }}</strong></div><div class="metric"><small>Total Votes Cast</small><strong>{{ total_votes }}</strong></div><div class="metric"><small>Voting Start</small><strong style="font-size:16px">{{ start_display }}</strong></div><div class="metric"><small>Voting End</small><strong style="font-size:16px">{{ end_display }}</strong></div></div>
+{% if status in ['active','ended','archived'] %}<div class="lock">🔒 This election is locked. Candidate, schedule and election settings cannot be edited after voting starts or ends.</div>{% endif %}</div>
+{% if status in ['ended','archived'] and winner %}
+<div class="card winner"><div style="font-size:14px;font-weight:bold">🏆 WINNING CANDIDATE</div><h2>{{ winner['name'] }}</h2><p>{{ winner['party'] or 'Independent' }}</p>
+{% set winner_symbol = (winner['party_symbol'] or '')|string %}
+{% if winner_symbol.lower().endswith(('.png', '.jpg', '.jpeg', '.webp', '.gif', '.svg')) %}
+  {% if winner_symbol.replace('\\', '/').startswith('uploads/symbols/') %}
+    <img class="symbol-image" src="{{ url_for('static', filename=winner_symbol.replace('\\', '/')) }}" alt="Winner election symbol" onerror="this.style.display='none';this.nextElementSibling.style.display='inline-block';">
+  {% elif '/' in winner_symbol or '\\' in winner_symbol %}
+    <img class="symbol-image" src="{{ url_for('static', filename=winner_symbol.replace('\\', '/').lstrip('/')) }}" alt="Winner election symbol" onerror="this.style.display='none';this.nextElementSibling.style.display='inline-block';">
+  {% else %}
+    <img class="symbol-image" src="{{ url_for('static', filename='uploads/symbols/' ~ winner_symbol) }}" alt="Winner election symbol" onerror="this.style.display='none';this.nextElementSibling.style.display='inline-block';">
+  {% endif %}
+  <span class="symbol-text" style="display:none">🗳️ Symbol image unavailable</span>
+{% else %}<p>Symbol: {{ winner_symbol or '—' }}</p>{% endif %}
+<p style="margin-top:12px"><strong>{{ winner['votes'] }} votes</strong></p></div>
+{% elif status in ['ended','archived'] %}<div class="card"><h2>🏆 Result</h2><p class="muted">No candidates or votes were recorded for this election.</p></div>{% else %}<div class="card"><h2>🏆 Winner</h2><p class="muted">The winner will be shown here after voting has ended.</p></div>{% endif %}
+<div class="card"><h2>👥 Candidates &amp; Vote Count</h2><p class="muted">Vote share is calculated from all votes recorded for this election.</p><div class="table-wrap"><table><thead><tr><th>#</th><th>Candidate</th><th>Party / Group</th><th>Symbol</th><th>Votes</th><th>Vote Share</th></tr></thead><tbody>
+{% for candidate in candidates %}
+<tr><td>{{ loop.index }}</td><td><strong>{{ candidate['name'] }}</strong>{% if winner and candidate['id'] == winner['id'] %} 🏆{% endif %}</td><td>{{ candidate['party'] or 'Independent' }}</td><td>
+{% set candidate_symbol = (candidate['party_symbol'] or '')|string %}
+{% if candidate_symbol.lower().endswith(('.png', '.jpg', '.jpeg', '.webp', '.gif', '.svg')) %}
+  {% if candidate_symbol.replace('\\', '/').startswith('uploads/symbols/') %}
+    <img class="symbol-cell" src="{{ url_for('static', filename=candidate_symbol.replace('\\', '/')) }}" alt="{{ candidate['party'] or candidate['name'] }} symbol" onerror="this.style.display='none';this.nextElementSibling.style.display='inline-block';">
+  {% elif '/' in candidate_symbol or '\\' in candidate_symbol %}
+    <img class="symbol-cell" src="{{ url_for('static', filename=candidate_symbol.replace('\\', '/').lstrip('/')) }}" alt="{{ candidate['party'] or candidate['name'] }} symbol" onerror="this.style.display='none';this.nextElementSibling.style.display='inline-block';">
+  {% else %}
+    <img class="symbol-cell" src="{{ url_for('static', filename='uploads/symbols/' ~ candidate_symbol) }}" alt="{{ candidate['party'] or candidate['name'] }} symbol" onerror="this.style.display='none';this.nextElementSibling.style.display='inline-block';">
+  {% endif %}
+  <span style="display:none">🗳️</span>
+{% else %}<span class="symbol-text">{{ candidate_symbol or '—' }}</span>{% endif %}
+</td><td><strong>{{ candidate['votes'] }}</strong></td><td><strong>{{ '%.1f'|format((candidate['votes'] / total_votes * 100) if total_votes else 0) }}%</strong></td></tr>
+{% else %}<tr><td colspan="6" class="muted">No candidates have been added to this election.</td></tr>{% endfor %}
+</tbody></table></div></div>
+<div class="card"><h2>📅 Full Election Information</h2><p><strong>Name:</strong> {{ election['name'] }}</p><p><strong>Type:</strong> {{ election['election_type']|default('General', true) }}</p><p><strong>Description:</strong> {{ election['description']|default('No description provided.', true) }}</p><p><strong>Scope:</strong> {{ election['scope']|default('all_india', true) }}</p>{% if election['state'] %}<p><strong>State:</strong> {{ election['state'] }}</p>{% endif %}{% if election['district'] %}<p><strong>District:</strong> {{ election['district'] }}</p>{% endif %}<p><strong>Created:</strong> {{ election['created_at']|default('Not available', true) }}</p><p><strong>Duration:</strong> {{ duration_display }}</p></div>
+{% if status not in ['active','ended','archived'] %}<div class="card"><p class="muted">This election has not started yet. You can still manage its candidates and schedule.</p><a class="btn" href="{{ url_for('admin_manage_election', election_id=election['id']) }}">⚙️ Manage Election</a></div>{% endif %}
+</div></body></html>
